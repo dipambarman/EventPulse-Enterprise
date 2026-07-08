@@ -1,0 +1,19 @@
+@import './styles/components.css';
+/* Removed imports of non-existing CSS files to fix build errors */
+ @import './theme.css';
+ @import './footer.css';
+ @import './paymentForm.css';
+ @import './priceCard.css';
+ @import './themeCard.css';
+
+/* Base styles */
+body {
+  font-family: Arial, sans-serif;
+  color: #212a3a; /* text-gray-900 */
+  background-color: #f9fafb; /* bg-gray-50 */
+  margin: 0;
+  padding: 0;
+}
+
+/* Add any other global styles here */
+/* Add any other global styles here */

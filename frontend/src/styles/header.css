@@ -1,0 +1,5 @@
+/* Styles for header and main content spacing */
+
+.main-content {
+  margin-top: 80px; /* Adjust this value to match the navbar height */
+}

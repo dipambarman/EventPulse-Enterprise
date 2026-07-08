@@ -1,0 +1,36 @@
+/* Base styles */
+body {
+  font-family: Arial, sans-serif;
+  color: #1a202c; /* text-gray-900 */
+  background-color: #f9fafb; /* bg-gray-50 */
+  margin: 0;
+  padding: 0;
+}
+
+h1 {
+  font-size: 2.25rem; /* text-4xl */
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+}
+
+h2 {
+  font-size: 1.875rem; /* text-3xl */
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+h3 {
+  font-size: 1.5rem; /* text-2xl */
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+}
+
+a {
+  color: #2563eb; /* text-blue-600 */
+  transition: color 0.3s ease;
+  text-decoration: none;
+}
+
+a:hover {
+  color: #1e40af; /* text-blue-800 */
+}

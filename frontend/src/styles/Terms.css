@@ -1,0 +1,49 @@
+.terms-page {
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 30px;
+    background-color: #c9cfe5;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.8;
+    color: #333;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  }
+  
+  .terms-title {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: #1d5388;
+    margin-bottom: 20px;
+    border-bottom: 4px solid #3498db;
+    padding-bottom: 10px;
+  }
+  
+  .terms-section {
+    margin-bottom: 30px;
+  }
+  
+  .terms-subtitle {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #1a1a1a;
+    margin-bottom: 10px;
+    border-left: 4px solid #2980b9;
+    padding-left: 12px;
+  }
+  
+  .terms-section p {
+    margin-bottom: 10px;
+    font-size: 1rem;
+  }
+  
+  .terms-link {
+    color: #007acc;
+    text-decoration: underline;
+  }
+  
+  .terms-link:hover {
+    color: #005fa3;
+  }
+  

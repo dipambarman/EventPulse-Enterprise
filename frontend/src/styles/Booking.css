@@ -1,0 +1,228 @@
+/* Booking.css - Elegant Event Booking System
+   Inspired by luxury event planning services and Apple design aesthetics */
+
+/* Import fonts */
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;700&display=swap');
+
+/* Base styles */
+.booking-page-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+  color: #1a202c;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f9fafb;
+  min-height: 100vh;
+}
+
+/* Loading spinner animation */
+.loading-spinner {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 60vh;
+  width: 100%;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-size: 1.25rem;
+  color: #2563eb;
+  position: relative;
+}
+
+.loading-spinner::after {
+  content: "";
+  width: 50px;
+  height: 50px;
+  border: 3px solid #bfdbfe;
+  border-radius: 50%;
+  border-top-color: #2563eb;
+  position: absolute;
+  animation: spinner 1s ease-in-out infinite;
+}
+
+@keyframes spinner {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.loading-spinner::before {
+  content: "";
+  position: absolute;
+  width: 60px;
+  height: 60px;
+  background-color: transparent;
+  border-radius: 50%;
+  box-shadow: 0 0 20px rgba(37, 99, 235, 0.1);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(0.95);
+    opacity: 0.7;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.3;
+  }
+  100% {
+    transform: scale(0.95);
+    opacity: 0.7;
+  }
+}
+
+/* Error container styling */
+.error-container {
+  background-color: white;
+  border-radius: 1rem;
+  padding: 2rem;
+  box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+  text-align: center;
+  max-width: 600px;
+  margin: 5rem auto;
+  border-top: 4px solid #ef4444;
+  animation: slideIn 0.4s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.error-container p {
+  color: #b91c1c;
+  font-size: 1.125rem;
+  margin-bottom: 1.5rem;
+  line-height: 1.5;
+}
+
+.redirect-button {
+  background-color: #2563eb;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 2px rgba(37, 99, 235, 0.5);
+}
+
+.redirect-button:hover {
+  background-color: #1d4ed8;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(29, 78, 216, 0.5);
+}
+
+.redirect-button:active {
+  transform: translateY(0);
+}
+
+/* Booking Form Container */
+.booking-form-container {
+  background-color: white;
+  border-radius: 1rem;
+  box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+  overflow: hidden;
+  animation: fadeIn 0.5s ease-out;
+  padding: 2rem;
+  margin-top: 2rem;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Theme header section */
+.theme-header {
+  background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+  color: white;
+  padding: 3rem 2rem;
+  position: relative;
+  overflow: hidden;
+  border-radius: 1rem;
+  box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.5);
+  margin-bottom: 2rem;
+}
+
+.theme-header::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: url('https://images.pexels.com/photos/1449775/pexels-photo-1449775.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2') center/cover no-repeat;
+  opacity: 0.15;
+  z-index: 1;
+  border-radius: 1rem;
+}
+
+.theme-header-content {
+  position: relative;
+  z-index: 2;
+  max-width: 800px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.theme-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 3rem;
+  margin-bottom: 0.5rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+
+.theme-description {
+  font-size: 1.125rem;
+  opacity: 0.9;
+  max-width: 70%;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+.theme-price {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-top: 1rem;
+  display: inline-block;
+  background-color: rgba(255, 255, 255, 0.2);
+  padding: 0.5rem 1rem;
+  border-radius: 1rem;
+  backdrop-filter: blur(10px);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .theme-header-content {
+    max-width: 100%;
+  }
+  .theme-description {
+    max-width: 100%;
+  }
+  .theme-title {
+    font-size: 2.25rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .theme-title {
+    font-size: 1.75rem;
+  }
+  .theme-price {
+    font-size: 1.25rem;
+  }
+}
