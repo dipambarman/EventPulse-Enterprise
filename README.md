@@ -1,122 +1,107 @@
 <div align="center">
   <img src="frontend/public/vite.svg" alt="Eventify Logo" width="100"/>
   <h1>🎉 Event Management Platform</h1>
-  <p>A modern, full-stack event booking and management system built with the PERN/MERN stack architecture (MySQL).</p>
+  <p>A high-performance, decoupled full-stack event discovery and booking engine built with React, Node.js, and MySQL.</p>
 
   <p>
-    <a href="#features"><strong>Features</strong></a> ·
-    <a href="#tech-stack"><strong>Tech Stack</strong></a> ·
-    <a href="#getting-started"><strong>Getting Started</strong></a> ·
-    <a href="#api-reference"><strong>API Reference</strong></a>
+    <a href="#-core-features"><strong>Features</strong></a> •
+    <a href="#-tech-stack"><strong>Tech Stack</strong></a> •
+    <a href="#-concurrency--data-integrity"><strong>Concurrency & Integrity</strong></a> •
+    <a href="#%EF%B8%8F-getting-started"><strong>Getting Started</strong></a>
   </p>
 </div>
 
-<br/>
+---
 
 ## 🚀 Overview
+This **Event Management Platform** is a full-stack single-page application (SPA) featuring an isolated RESTful API backend and a dynamic frontend. The application is built around a secure MVC architecture, focused heavily on relational database integrity, strict request scheduling, and seamless web payments.
 
-This **Event Management Platform** is designed to provide a seamless experience for browsing event themes, booking reservations, and managing secure payments. The architecture separates concerns beautifully with a high-performance RESTful API backend and a responsive, dynamic frontend.
+## ✨ Core Features
 
-## ✨ Features
+*   **🔐 Secure Session Controls:** User authentication and stateless session management leveraging JSON Web Tokens (JWT) and `bcrypt` password hashing.
+*   **📅 Capacity-Enforced Bookings:** Robust ticket allocation engine featuring transaction-safe checks to prevent event over-allocation.
+*   **💳 Payment Gateway Integration:** Complete end-to-end multi-step checkout workflow utilizing the Razorpay SDK with secure server-side signature verification.
+*   **🎨 Dynamic Theme Engine:** High-performance data fetching interface for real-time event discovery, category sorting, and catalog browsing.
+*   **🔒 Hardened Middleware Pipeline:** Production-configured security layer utilizing CORS controls, parameterized query handling to eliminate SQL injection, and secure environment isolation.
 
-- **🔐 User Authentication:** Secure login and registration with JWT authentication and password hashing.
-- **📅 Event Bookings:** Robust booking engine for reserving event slots and themes.
-- **💳 Payment Integration:** Secure and seamless checkout utilizing Razorpay.
-- **🎨 Theme Management:** Browse and discover available event themes.
-- **⚡ Real-time Interface:** Highly responsive single-page application built on Vite and React.
-- **🔒 Security First:** Cross-Origin Resource Sharing (CORS), secure HTTP headers, and environment-driven configurations.
+---
+
+## ⚡ Concurrency & Data Integrity
+To prevent race conditions during peak registration windows, the booking backend enforces transactional guardrails:
+*   **Double-Booking Prevention:** Implements conditional database validation to ensure an individual user profile cannot register concurrent slots for identical event times.
+*   **Capacity Enforcement:** Validates remaining inventory limits using atomic SQL queries prior to generating checkout signatures, ensuring allocations strictly respect venue bounds under concurrent traffic loads.
+
+---
 
 ## 💻 Tech Stack
 
-### Frontend
-- **Framework:** React.js 18
-- **Build Tool:** Vite
-- **Styling:** Tailwind CSS (v4)
-- **Routing:** React Router v7
-
-### Backend
-- **Environment:** Node.js
-- **Framework:** Express.js
-- **Database:** MySQL
-- **Authentication:** JSON Web Tokens (JWT) & bcrypt
-- **Payments:** Razorpay Integration
+| Layer | Technologies Used |
+|---|---|
+| **Frontend Client** | React 18 • Vite • Tailwind CSS (v4) • React Router v7 |
+| **Backend Runtime** | Node.js • Express.js (REST API Architecture) |
+| **Database Layer** | MySQL (Normalized relational architecture) |
+| **Security & Utilities** | JSON Web Tokens (JWT) • Bcryptjs • Razorpay SDK |
 
 ---
 
 ## 🛠️ Getting Started
 
-Follow these steps to set up the project locally on your machine.
-
 ### Prerequisites
+*   Node.js (v18+ recommended)
+*   Local or cloud instance of MySQL Server
 
-- [Node.js](https://nodejs.org/en/) (v16+ recommended)
-- [MySQL Server](https://dev.mysql.com/downloads/) running locally or in the cloud.
-- A [Razorpay](https://razorpay.com/) account for payment processing.
-
-### 1. Clone the repository
-
+### 1. Clone & Environment Configurations
 ```bash
 git clone https://github.com/dipambarman/project-event-management.git
 cd project-event-management
 ```
+Create a `.env` file inside the `backend/` directory:
 
-### 2. Environment Variables
-
-Create `.env` files in both the root directory and the `backend` directory based on your local configuration:
-
-**Root / Backend `.env`**
 ```env
 PORT=5000
 DB_HOST=localhost
 DB_USER=root
-DB_PASSWORD=your_password
+DB_PASSWORD=your_mysql_password
 DB_NAME=event_management
-SESSION_SECRET=your-secret-key
+JWT_SECRET=your_jwt_signing_secret_key
 RAZORPAY_KEY_ID=your_razorpay_key
 RAZORPAY_KEY_SECRET=your_razorpay_secret
 ```
 
-### 3. Backend Setup
+### 2. Execution Pipelines
 
+**Backend Services:**
 ```bash
 cd backend
 npm install
 npm run dev
 ```
-*The backend server will start running on http://localhost:5000*
+*Backend API initializes instantly at http://localhost:5000*
 
-### 4. Frontend Setup
-
-Open a new terminal window:
+**Frontend Services:**
 ```bash
+# Execute in an isolated terminal instance
 cd frontend
 npm install
 npm run dev
 ```
-*The frontend application will be accessible at http://localhost:5173*
+*Single Page Application launches instantly at http://localhost:5173*
 
----
-
-## 🏗️ Project Structure
-
-```text
-📦 project
+## 📂 Structural Layout
+```plaintext
+📦 project-event-management
  ┣ 📂 backend
- ┃ ┣ 📂 controllers     # Request handlers and business logic
- ┃ ┣ 📂 middleware      # Custom Express middlewares (Auth, etc.)
- ┃ ┣ 📂 routes          # API endpoint definitions
- ┃ ┣ 📜 server.js       # Express app entry point
- ┃ ┗ 📜 db.js           # Database connection configuration
+ ┃ ┣ 📂 controllers     # Core request handlers and business validation
+ ┃ ┣ 📂 middleware      # JWT authenticators and security handlers
+ ┃ ┣ 📂 routes          # Decoupled RESTful endpoint routing definitions
+ ┃ ┣ 📜 db.js           # MySQL relational client connection pool
+ ┃ ┗ 📜 server.js       # App configuration entry node
  ┣ 📂 frontend
  ┃ ┣ 📂 src
- ┃ ┃ ┣ 📂 components    # Reusable React UI components
- ┃ ┃ ┣ 📂 pages         # Page-level components
- ┃ ┃ ┗ 📜 App.jsx       # Root React component
- ┃ ┣ 📜 vite.config.js
- ┃ ┗ 📜 index.html
- ┗ 📜 package.json
+ ┃ ┃ ┣ 📂 components    # Modular and atomic UI presentation components
+ ┃ ┃ ┣ 📂 pages         # Page-level route views
+ ┃ ┃ ┗ 📜 App.jsx       # Root wrapper and router layout provider
 ```
 
 ## 📄 License
-
-This project is open-source and available under the [MIT License](LICENSE).
+Distributed under the open-source MIT License.
