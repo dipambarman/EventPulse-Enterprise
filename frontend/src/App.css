@@ -1,68 +1,68 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+/* ============================================
+   EventPulse — App Layout Styles
+   ============================================ */
+
+/* App Wrapper */
+.app-wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  padding-top: var(--ep-nav-height);
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  /* transition: filter 300ms; */
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+.app-main {
+  flex: 1;
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
+/* Page Transitions */
+.page-enter {
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+.page-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 300ms ease, transform 300ms ease;
+}
+
+/* ---- Scroll to Top indicator ---- */
+.scroll-to-top {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  width: 48px;
+  height: 48px;
+  border-radius: var(--ep-radius-full);
+  background: var(--ep-primary);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--ep-shadow-lg);
+  cursor: pointer;
+  transition: all var(--ep-transition-base);
+  z-index: 50;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(20px);
+}
+
+.scroll-to-top.visible {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+.scroll-to-top:hover {
+  background: var(--ep-primary-dark);
+  transform: translateY(-4px);
+  box-shadow: var(--ep-shadow-xl);
+}
+
+/* ---- Responsive App Adjustments ---- */
+@media (max-width: 768px) {
+  .app-wrapper {
+    padding-top: var(--ep-nav-height);
   }
-  to {
-    transform: rotate(360deg);
-  }
 }
-
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
-}
-
-.card {
-  padding: 2em;
-}
-
-.read-the-docs {
-  color: #888;
-}
-
-h1 {
-  color: #fff;
-  font-size: 2.5em;
-  margin-bottom: 0.5em;
-  font-family: 'Times New Roman', Times, serif;
-}
-h2 {
-  color: #8a7814;
-  font-size: 4em;
-  margin-bottom: 0.5em;
-  font-family: 'Imperial Script', cursive;
-  text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 15px #fff,
-    0 0 20px #fff, 0 0 25px #fff, 0 0 30px #fff, 0 0 35px #fff;
-    additive-symbols: -o-repeating-linear-gradient(
-      0deg,
-      #fff 0%,
-      #fff 100%
-    );
-}
-.navbar {
-  background-color: #333;
-  color: #fff;
-  padding: 1em;
-}
- 
