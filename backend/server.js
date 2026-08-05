@@ -8,14 +8,21 @@ const helmet = require('helmet');
 const cookieParser = require('cookie-parser');
 const rateLimit = require('express-rate-limit');
 const morgan = require('morgan');
+const compression = require('compression');
+
+// Startup Environment Audit
+const validateEnv = require('./config/envCheck');
+validateEnv();
 
 // Import routes
 const themeRoutes = require('./routes/themeRoutes');
 const bookingRoutes = require('./routes/bookingRoutes');
 const paymentRoutes = require('./routes/paymentRoutes');
 const authRoutes = require('./routes/authRoutes');
+const healthRoute = require('./routes/healthRoute');
 const addonController = require('./controllers/addonController');
 const analyticsController = require('./controllers/analyticsController');
+const { errorHandler } = require('./middleware/errorHandler');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -33,9 +40,10 @@ app.use(cors({
   },
   credentials: true
 }));
-app.use(bodyParser.json({ limit: '1mb' }));
 
-// Security Middlewares
+// Performance & Security Middlewares
+app.use(compression());
+app.use(bodyParser.json({ limit: '1mb' }));
 app.use(helmet());
 app.use(cookieParser());
 app.use(morgan('combined')); // HTTP request logging
@@ -44,6 +52,7 @@ app.use(morgan('combined')); // HTTP request logging
 const csrfMiddleware = (req, res, next) => {
   if (req.method === 'GET' || req.method === 'OPTIONS' || req.method === 'HEAD') return next();
   if (req.path === '/api/payments/razorpay/webhook') return next(); // Webhooks are authenticated via signature
+  if (req.path === '/api/health') return next();
   
   const origin = req.headers.origin;
   const referer = req.headers.referer;
@@ -77,19 +86,22 @@ app.use(session({
   cookie: { secure: process.env.NODE_ENV === 'production' }
 }));
 
-// Routes
+// Health Check Route
+app.use('/api/health', healthRoute);
+
+// Application API Routes
 app.use('/api/themes', themeRoutes);
 app.use('/api/bookings', bookingRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/auth', authLimiter, authRoutes);
 
-// New Enterprise Endpoints
+// Additional Endpoints
 const authMiddleware = require('./middleware/authMiddleware');
 app.get('/api/addons', authMiddleware, addonController.getAllAddOns);
 app.get('/api/addons/:id', authMiddleware, addonController.getAddOnById);
 app.get('/api/analytics', authMiddleware, analyticsController.getExecutiveAnalytics);
 
-// Serve frontend static files
+// Serve frontend static files in production
 const frontendPath = path.join(__dirname, '..', 'frontend', 'dist');
 app.use(express.static(frontendPath));
 
@@ -98,8 +110,11 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(frontendPath, 'index.html'));
 });
 
+// Global Centralized Error Handler
+app.use(errorHandler);
+
 const server = app.listen(PORT, () => {
-  console.log(`🚀 EventPulse Enterprise API running on port ${PORT}`);
+  console.log(`🚀 EventPulse API running on port ${PORT}`);
 });
 
 server.on('error', (err) => {

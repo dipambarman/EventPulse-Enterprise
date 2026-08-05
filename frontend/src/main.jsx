@@ -1,7 +1,9 @@
 import { BrowserRouter } from 'react-router-dom';
-import './index.css'
+import './index.css';
 import ReactDOM from 'react-dom/client';
-import App from './App.jsx'
+import App from './App.jsx';
+import ErrorBoundary from './component/ErrorBoundary';
+import { ToastProvider } from './context/ToastContext';
 
 // Global MutationObserver to fix SVG width/height="auto" attributes injected by Razorpay or other scripts
 const fixSvgAutoAttributes = () => {
@@ -38,7 +40,11 @@ const fixSvgAutoAttributes = () => {
 fixSvgAutoAttributes();
 
 ReactDOM.createRoot(document.getElementById('root')).render(
-  <BrowserRouter>
-    <App />
-  </BrowserRouter>
+  <ErrorBoundary>
+    <ToastProvider>
+      <BrowserRouter>
+        <App />
+      </BrowserRouter>
+    </ToastProvider>
+  </ErrorBoundary>
 );
