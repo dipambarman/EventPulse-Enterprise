@@ -58,7 +58,7 @@ exports.createOrder = async (req, res) => {
     res.status(201).json(order);
   } catch (error) {
     console.error('Error creating Razorpay order:', error);
-    res.status(500).json({ error: error.message || 'Failed to create order' });
+    res.status(500).json({ error: 'Failed to create order' });
   }
 };
 

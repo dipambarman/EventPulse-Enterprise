@@ -133,7 +133,7 @@ exports.createBooking = async (req, res) => {
       conn.release();
     }
     console.error('Error creating booking:', error);
-    res.status(500).json({ error: error.message || 'Internal server error' });
+    res.status(500).json({ error: 'Internal server error' });
   }
 };
 
