@@ -115,8 +115,9 @@ exports.createBooking = async (req, res) => {
 
 exports.getBookingById = async (req, res) => {
   const id = req.params.id;
+  const userId = req.user.id;
   try {
-    const [rows] = await pool.execute('SELECT * FROM bookings WHERE id = ? AND deleted_at IS NULL', [id]);
+    const [rows] = await pool.execute('SELECT * FROM bookings WHERE id = ? AND user_id = ? AND deleted_at IS NULL', [id, userId]);
     if (rows.length === 0) {
       return res.status(404).json({ message: 'Booking not found' });
     }
@@ -161,8 +162,12 @@ exports.updateBooking = async (req, res) => {
   try {
     const fields = Object.keys(validUpdates).map(key => key + ' = ?').join(', ');
     const values = Object.values(validUpdates);
-    const query = 'UPDATE bookings SET ' + fields + ' WHERE id = ?';
-    await pool.execute(query, [...values, id]);
+    const query = 'UPDATE bookings SET ' + fields + ' WHERE id = ? AND user_id = ?';
+    const [result] = await pool.execute(query, [...values, id, req.user.id]);
+    
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: 'Booking not found or unauthorized' });
+    }
     
     const [rows] = await pool.execute('SELECT * FROM bookings WHERE id = ?', [id]);
     if (rows.length === 0) {
@@ -178,10 +183,16 @@ exports.updateBooking = async (req, res) => {
 exports.cancelBooking = async (req, res) => {
   const id = req.params.id;
   const cancellationDetails = req.body;
+  const userId = req.user.id;
   try {
     const query = 
-      'UPDATE bookings SET status = \'cancelled\', cancellation_details = ? WHERE id = ?';
-    await pool.execute(query, [JSON.stringify(cancellationDetails), id]);
+      'UPDATE bookings SET status = \'cancelled\', cancellation_details = ? WHERE id = ? AND user_id = ?';
+    const [result] = await pool.execute(query, [JSON.stringify(cancellationDetails), id, userId]);
+    
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: 'Booking not found or unauthorized' });
+    }
+    
     const [rows] = await pool.execute('SELECT * FROM bookings WHERE id = ?', [id]);
     if (rows.length === 0) {
       return res.status(404).json({ message: 'Booking not found' });

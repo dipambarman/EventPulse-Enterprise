@@ -127,7 +127,11 @@ exports.removePaymentMethod = (req, res) => {
 
 exports.getPaymentHistory = async (req, res) => {
   try {
-     const [rows] = await pool.execute('SELECT * FROM payments');
+     const userId = req.user.id;
+     const [rows] = await pool.execute(
+       'SELECT p.* FROM payments p JOIN bookings b ON p.booking_id = b.id WHERE b.user_id = ?',
+       [userId]
+     );
      res.json(rows);
   } catch (error) {
      res.status(500).json({ error: 'Internal server error' });
