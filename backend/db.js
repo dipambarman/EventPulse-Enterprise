@@ -17,14 +17,20 @@ const mockStore = {
     { id: 't2', name: 'Arunachal Mountain Expedition', category: 'Travel', price: 35000, description: 'Tawang Monastery tour, high-altitude pass permits, and private SUV guide.' }
   ],
   bookings: [
-    { id: 'EVT-101', theme_id: 'w1', user_id: 'usr-1', start_date: '2026-11-15', end_date: '2026-11-16', status: 'confirmed' },
-    { id: 'EVT-102', theme_id: 'c2', user_id: 'usr-2', start_date: '2026-08-28', end_date: '2026-08-28', status: 'confirmed' }
+    { id: 'EVT-101', theme_id: 'w1', user_id: 'usr-1', start_date: '2026-11-15', end_date: '2026-11-16', total_price: 750000, guest_count: 50, customer_name: 'John Doe', customer_email: 'john@example.com', customer_phone: '1234567890', status: 'confirmed' },
+    { id: 'EVT-102', theme_id: 'c2', user_id: 'usr-2', start_date: '2026-08-28', end_date: '2026-08-28', total_price: 120000, guest_count: 100, customer_name: 'Jane Smith', customer_email: 'jane@example.com', customer_phone: '0987654321', status: 'confirmed' }
+  ],
+  add_ons: [
+    { id: 'a1', name: 'Extra Photographer', price: 10000 }
+  ],
+  booking_add_ons: [
+    { booking_id: 'EVT-101', add_on_id: 'a1', quantity: 1, price_at_booking: 10000 }
   ],
   users: [
     { id: 'usr-1', username: 'admin', email: 'admin@eventpulse.io', password_hash: '$2a$10$X8T7...' }
   ],
   payments: [
-    { id: 'pay-1', booking_id: 'EVT-101', amount: 200000, status: 'completed', payment_method: 'Razorpay' }
+    { id: 'pay-1', booking_id: 'EVT-101', amount: 200000, status: 'completed', payment_method: 'razorpay', gateway_order_id: 'order_mock123' }
   ]
 };
 

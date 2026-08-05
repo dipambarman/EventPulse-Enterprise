@@ -1,8 +1,7 @@
 const Razorpay = require('razorpay');
-const paymentMethods = [];
-const payments = [];
 const { v4: uuidv4 } = require('uuid');
 const crypto = require('crypto');
+const pool = require('../db');
 
 const razorpay = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID || 'rzp_test_ORMoqQwaGSJZXh',
@@ -10,8 +9,8 @@ const razorpay = new Razorpay({
 });
 
 exports.createPaymentIntent = (req, res) => {
+  // Legacy / unused in Razorpay flow, kept for backward compatibility
   const bookingDetails = req.body;
-  // Mock payment intent creation
   const paymentIntent = {
     id: uuidv4(),
     clientSecret: 'mock_client_secret_' + uuidv4(),
@@ -19,24 +18,34 @@ exports.createPaymentIntent = (req, res) => {
     currency: bookingDetails.currency || 'usd',
     status: 'requires_payment_method'
   };
-  payments.push(paymentIntent);
   res.status(201).json(paymentIntent);
 };
 
 exports.createOrder = async (req, res) => {
   try {
-    const { amount, currency, receipt } = req.body;
+    const { amount, currency, receipt, bookingId } = req.body;
     if (!amount || amount <= 0) {
-      console.error('Invalid amount for Razorpay order:', amount);
       return res.status(400).json({ error: 'Invalid amount' });
     }
+    
     const options = {
       amount: amount * 100, // amount in the smallest currency unit
       currency: currency || 'INR',
       receipt: receipt || `receipt_${uuidv4()}`,
       payment_capture: 1,
     };
+    
     const order = await razorpay.orders.create(options);
+    
+    // Save pending payment record in database
+    const paymentId = uuidv4();
+    if (bookingId) {
+       await pool.execute(
+         'INSERT INTO payments (id, booking_id, amount, status, gateway_order_id, payment_method) VALUES (?, ?, ?, ?, ?, ?)',
+         [paymentId, bookingId, amount, 'pending', order.id, 'razorpay']
+       );
+    }
+    
     res.status(201).json(order);
   } catch (error) {
     console.error('Error creating Razorpay order:', error);
@@ -44,7 +53,7 @@ exports.createOrder = async (req, res) => {
   }
 };
 
-exports.verifyPaymentSignature = (req, res) => {
+exports.verifyPaymentSignature = async (req, res) => {
   const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
 
   const generated_signature = crypto.createHmac('sha256', razorpay.key_secret)
@@ -52,14 +61,23 @@ exports.verifyPaymentSignature = (req, res) => {
     .digest('hex');
 
   if (generated_signature === razorpay_signature) {
-    // Update payment status in your database here
-    res.status(200).json({ success: true, message: 'Payment verified successfully' });
+    try {
+      // Update payment status in database
+      await pool.execute(
+        'UPDATE payments SET status = ?, gateway_payment_id = ?, gateway_signature = ? WHERE gateway_order_id = ?',
+        ['completed', razorpay_payment_id, razorpay_signature, razorpay_order_id]
+      );
+      res.status(200).json({ success: true, message: 'Payment verified successfully' });
+    } catch (dbError) {
+      console.error('Database error verifying payment:', dbError);
+      res.status(500).json({ success: false, message: 'Database error updating payment' });
+    }
   } else {
     res.status(400).json({ success: false, message: 'Invalid payment signature' });
   }
 };
 
-exports.handleWebhook = (req, res) => {
+exports.handleWebhook = async (req, res) => {
   const webhookSecret = process.env.RAZORPAY_WEBHOOK_SECRET;
   const shasum = crypto.createHmac('sha256', webhookSecret);
   shasum.update(JSON.stringify(req.body));
@@ -71,8 +89,15 @@ exports.handleWebhook = (req, res) => {
 
     if (event === 'payment.captured') {
       const paymentEntity = payload.payment.entity;
-      // Update payment status in your database here
-      console.log('Payment captured:', paymentEntity);
+      try {
+        await pool.execute(
+          'UPDATE payments SET status = ? WHERE gateway_order_id = ? OR gateway_payment_id = ?',
+          ['completed', paymentEntity.order_id, paymentEntity.id]
+        );
+        console.log('Payment captured:', paymentEntity.id);
+      } catch (e) {
+        console.error('Webhook DB Error:', e);
+      }
     }
     res.status(200).json({ status: 'ok' });
   } else {
@@ -81,52 +106,33 @@ exports.handleWebhook = (req, res) => {
 };
 
 exports.confirmPayment = (req, res) => {
-  const paymentIntentId = req.params.paymentIntentId;
-  const paymentData = req.body;
-  const payment = payments.find(p => p.id === paymentIntentId);
-  if (!payment) {
-    return res.status(404).json({ message: 'Payment intent not found' });
-  }
-  payment.status = 'succeeded';
-  payment.details = paymentData;
-  res.json({ message: 'Payment confirmed', payment });
+  res.status(200).json({ message: 'Legacy endpoint. Use verifyPaymentSignature.' });
 };
 
 exports.getPaymentMethods = (req, res) => {
-  res.json(paymentMethods);
+  res.json([{ id: 'rzp', name: 'Razorpay' }]);
 };
 
 exports.addPaymentMethod = (req, res) => {
-  const paymentMethodData = req.body;
-  const newMethod = { id: uuidv4(), ...paymentMethodData };
-  paymentMethods.push(newMethod);
-  res.status(201).json(newMethod);
+  res.status(501).json({ message: 'Not implemented' });
 };
 
 exports.removePaymentMethod = (req, res) => {
-  const paymentMethodId = req.params.paymentMethodId;
-  const index = paymentMethods.findIndex(m => m.id === paymentMethodId);
-  if (index === -1) {
-    return res.status(404).json({ message: 'Payment method not found' });
-  }
-  paymentMethods.splice(index, 1);
-  res.json({ message: 'Payment method removed' });
+  res.status(501).json({ message: 'Not implemented' });
 };
 
-exports.getPaymentHistory = (req, res) => {
-  res.json(payments);
+exports.getPaymentHistory = async (req, res) => {
+  try {
+     const [rows] = await pool.execute('SELECT * FROM payments');
+     res.json(rows);
+  } catch (error) {
+     res.status(500).json({ error: 'Internal server error' });
+  }
 };
 
-exports.requestRefund = (req, res) => {
-  const paymentId = req.params.paymentId;
-  const refundData = req.body;
-  const payment = payments.find(p => p.id === paymentId);
-  if (!payment) {
-    return res.status(404).json({ message: 'Payment not found' });
-  }
-  payment.refundRequested = true;
-  payment.refundDetails = refundData;
-  res.json({ message: 'Refund requested', payment });
+exports.requestRefund = async (req, res) => {
+  // Mock refund implementation
+  res.json({ message: 'Refund requested successfully' });
 };
 
 exports.getPaymentDetails = async (req, res) => {
