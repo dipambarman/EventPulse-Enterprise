@@ -63,12 +63,16 @@ const authLimiter = rateLimit({
   message: { message: 'Too many requests from this IP, please try again after 15 minutes' }
 });
 
+// Generate a random secret if not provided to prevent hardcoded secret vulnerability
+const crypto = require('crypto');
+const sessionSecret = process.env.SESSION_SECRET || crypto.randomBytes(64).toString('hex');
+
 // Session middleware setup
 app.use(session({
-  secret: process.env.SESSION_SECRET || 'eventpulse-super-secret-key',
+  secret: sessionSecret,
   resave: false,
   saveUninitialized: true,
-  cookie: { secure: false }
+  cookie: { secure: process.env.NODE_ENV === 'production' }
 }));
 
 // Routes
