@@ -88,6 +88,11 @@ exports.verifyPaymentSignature = async (req, res) => {
 
 exports.handleWebhook = async (req, res) => {
   const webhookSecret = process.env.RAZORPAY_WEBHOOK_SECRET;
+  if (!webhookSecret) {
+    console.error('Webhook secret not configured');
+    return res.status(500).json({ status: 'server configuration error' });
+  }
+
   const shasum = crypto.createHmac('sha256', webhookSecret);
   shasum.update(JSON.stringify(req.body));
   const digest = shasum.digest('hex');
