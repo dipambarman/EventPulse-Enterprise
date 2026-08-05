@@ -60,9 +60,10 @@ app.use('/api/payments', paymentRoutes);
 app.use('/api/auth', authLimiter, authRoutes);
 
 // New Enterprise Endpoints
-app.get('/api/addons', addonController.getAllAddOns);
-app.get('/api/addons/:id', addonController.getAddOnById);
-app.get('/api/analytics', analyticsController.getExecutiveAnalytics);
+const authMiddleware = require('./middleware/authMiddleware');
+app.get('/api/addons', authMiddleware, addonController.getAllAddOns);
+app.get('/api/addons/:id', authMiddleware, addonController.getAddOnById);
+app.get('/api/analytics', authMiddleware, analyticsController.getExecutiveAnalytics);
 
 // Serve frontend static files
 const frontendPath = path.join(__dirname, '..', 'frontend', 'dist');
