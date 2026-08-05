@@ -42,11 +42,19 @@ app.use(cors({
 }));
 
 // Performance & Security Middlewares
+app.use((req, res, next) => {
+  req.id = req.headers['x-request-id'] || require('uuid').v4();
+  res.setHeader('X-Request-ID', req.id);
+  next();
+});
+
+morgan.token('id', (req) => req.id);
+
 app.use(compression());
 app.use(bodyParser.json({ limit: '1mb' }));
 app.use(helmet());
 app.use(cookieParser());
-app.use(morgan('combined')); // HTTP request logging
+app.use(morgan(':id :remote-addr - :method :url HTTP/:http-version :status :response-time ms')); // Correlated HTTP request logging
 
 // CSRF Protection Middleware
 const csrfMiddleware = (req, res, next) => {
