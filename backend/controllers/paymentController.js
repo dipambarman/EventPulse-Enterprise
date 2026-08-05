@@ -3,9 +3,13 @@ const { v4: uuidv4 } = require('uuid');
 const crypto = require('crypto');
 const pool = require('../db');
 
+if (!process.env.RAZORPAY_KEY_ID || !process.env.RAZORPAY_KEY_SECRET) {
+  console.error('CRITICAL: Razorpay keys are missing from environment variables.');
+}
+
 const razorpay = new Razorpay({
-  key_id: process.env.RAZORPAY_KEY_ID || 'rzp_test_ORMoqQwaGSJZXh',
-  key_secret: process.env.RAZORPAY_KEY_SECRET || 'ALzeODVLFDgLuJ3jdrVmkX0p',
+  key_id: process.env.RAZORPAY_KEY_ID,
+  key_secret: process.env.RAZORPAY_KEY_SECRET,
 });
 
 exports.createPaymentIntent = (req, res) => {

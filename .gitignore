@@ -37,3 +37,5 @@ dist/
 *.sln
 *.sw?
 .DS_Store
+*.bat
+test-env.js
