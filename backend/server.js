@@ -38,6 +38,24 @@ app.use(bodyParser.json());
 app.use(helmet());
 app.use(cookieParser());
 
+// CSRF Protection Middleware
+const csrfMiddleware = (req, res, next) => {
+  if (req.method === 'GET' || req.method === 'OPTIONS' || req.method === 'HEAD') return next();
+  if (req.path === '/api/payments/razorpay/webhook') return next(); // Webhooks are authenticated via signature
+  
+  const origin = req.headers.origin;
+  const referer = req.headers.referer;
+  
+  const isValidOrigin = origin ? allowedOrigins.includes(origin) : false;
+  const isValidReferer = referer ? allowedOrigins.some(o => referer.startsWith(o)) : false;
+
+  if (isValidOrigin || isValidReferer) {
+    return next();
+  }
+  return res.status(403).json({ error: 'CSRF validation failed' });
+};
+app.use(csrfMiddleware);
+
 // Rate limiting for auth routes
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
