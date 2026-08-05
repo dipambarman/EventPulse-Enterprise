@@ -22,6 +22,19 @@ CREATE TABLE IF NOT EXISTS users (
   deleted_at TIMESTAMP NULL DEFAULT NULL
 );
 
+-- Password Resets Table (Security Token Management)
+CREATE TABLE IF NOT EXISTS password_resets (
+  id VARCHAR(36) PRIMARY KEY,
+  user_id VARCHAR(36) NOT NULL,
+  token_hash VARCHAR(255) NOT NULL,
+  expires_at TIMESTAMP NOT NULL,
+  used BOOLEAN DEFAULT FALSE,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  INDEX idx_token_hash (token_hash),
+  INDEX idx_user_expires (user_id, expires_at)
+);
+
 -- Bookings table (Normalized, JSON fields removed)
 CREATE TABLE IF NOT EXISTS bookings (
   id VARCHAR(36) PRIMARY KEY,

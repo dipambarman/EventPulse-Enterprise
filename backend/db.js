@@ -31,7 +31,8 @@ const mockStore = {
   ],
   payments: [
     { id: 'pay-1', booking_id: 'EVT-101', amount: 200000, status: 'completed', payment_method: 'razorpay', gateway_order_id: 'order_mock123' }
-  ]
+  ],
+  password_resets: []
 };
 
 let pool = null;
@@ -65,7 +66,7 @@ try {
 
 // Wrapper interface allowing seamless execution regardless of MySQL availability
 const dbInterface = {
-  query: async (sql, params) => {
+  query: async (sql, params = []) => {
     if (!isMock && pool) {
       try {
         return await pool.query(sql, params);
@@ -76,14 +77,60 @@ const dbInterface = {
 
     // Mock query responder for essential tables
     const lowerSql = sql.toLowerCase();
+
+    if (lowerSql.includes('password_resets')) {
+      if (lowerSql.includes('insert into password_resets')) {
+        const resetObj = {
+          id: params[0],
+          user_id: params[1],
+          token_hash: params[2],
+          expires_at: params[3],
+          used: false,
+          created_at: new Date()
+        };
+        mockStore.password_resets.push(resetObj);
+        return [{ affectedRows: 1 }];
+      }
+      if (lowerSql.includes('update password_resets set used = 1')) {
+        const val = params[0];
+        mockStore.password_resets.forEach(r => {
+          if (r.id === val || r.user_id === val || r.token_hash === val) r.used = true;
+        });
+        return [{ affectedRows: 1 }];
+      }
+      if (lowerSql.includes('select')) {
+        const tokenHash = params[0];
+        const matching = mockStore.password_resets.filter(
+          r => r.token_hash === tokenHash && !r.used && new Date(r.expires_at) > new Date()
+        );
+        return [matching];
+      }
+    }
+
+    if (lowerSql.includes('users')) {
+      if (lowerSql.includes('update users set password_hash')) {
+        const user = mockStore.users.find(u => u.id === params[1]);
+        if (user) {
+          user.password_hash = params[0];
+        }
+        return [{ affectedRows: 1 }];
+      }
+      if (lowerSql.includes('where email = ? or username = ?')) {
+        const foundUser = mockStore.users.filter(u => u.email === params[0] || u.username === params[1]);
+        return [foundUser];
+      }
+      if (lowerSql.includes('where email = ?') || lowerSql.includes('where email=')) {
+        const foundUser = mockStore.users.filter(u => u.email.toLowerCase() === (params[0] || '').toLowerCase());
+        return [foundUser];
+      }
+      return [mockStore.users];
+    }
+
     if (lowerSql.includes('select * from themes') || lowerSql.includes('themes')) {
       return [mockStore.themes];
     }
     if (lowerSql.includes('select * from bookings') || lowerSql.includes('bookings')) {
       return [mockStore.bookings];
-    }
-    if (lowerSql.includes('select * from users') || lowerSql.includes('users')) {
-      return [mockStore.users];
     }
     return [[]];
   },

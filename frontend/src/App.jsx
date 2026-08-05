@@ -14,6 +14,8 @@ import Payment from './page/Payment';
 import Confirmation from './page/Confirmation';
 import Login from './page/Login';
 import Register from './page/Register';
+import ForgotPassword from './page/ForgotPassword';
+import ResetPassword from './page/ResetPassword';
 import AboutUsPage from './page/AboutUs';
 import ContactUs from './page/ContactUs';
 import Terms from './page/Terms';
@@ -42,6 +44,8 @@ const App = () => {
           <Route path="/confirmation" element={<Confirmation />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/about-us" element={<AboutUsPage />} />
           <Route path="/contact" element={<ContactUs />} />
           <Route path="/terms" element={<Terms />} />

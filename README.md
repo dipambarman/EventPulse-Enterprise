@@ -175,6 +175,8 @@ erDiagram
 | `POST` | `/api/auth/register` | Public | Register a new user account |
 | `POST` | `/api/auth/login` | Public | Authenticate user & set HttpOnly JWT cookie |
 | `POST` | `/api/auth/logout` | Authenticated | Clear authentication cookie |
+| `POST` | `/api/auth/forgot-password` | Public | Initiate password reset (anti-enumeration protection & SHA-256 token hashing) |
+| `POST` | `/api/auth/reset-password` | Public | Verify reset token & update user password (15-min expiration constraint) |
 
 ### Booking Endpoints (`/api/bookings`)
 | Method | Endpoint | Access | Description |

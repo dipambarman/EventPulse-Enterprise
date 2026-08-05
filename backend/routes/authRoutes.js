@@ -19,4 +19,15 @@ router.post('/login', [
 // Logout route
 router.post('/logout', authController.logout);
 
+// Forgot Password route (Anti-User Enumeration)
+router.post('/forgot-password', [
+  body('email').isEmail().withMessage('Valid email is required').normalizeEmail()
+], authController.forgotPassword);
+
+// Reset Password route (Token & Complexity Validation)
+router.post('/reset-password', [
+  body('token').notEmpty().withMessage('Reset token is required'),
+  body('newPassword').isLength({ min: 6 }).withMessage('Password must be at least 6 characters long')
+], authController.resetPassword);
+
 module.exports = router;

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import '../styles/Login.css';
 import { login, saveAuthData } from '../services/authService';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -42,7 +42,12 @@ const Login = () => {
           />
         </div>
         <div className="form-group">
-          <label htmlFor="password" className="form-label">Password:</label>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <label htmlFor="password" className="form-label">Password:</label>
+            <Link to="/forgot-password" style={{ color: '#6c5ce7', fontSize: '0.85rem', textDecoration: 'none', fontWeight: 500 }}>
+              Forgot Password?
+            </Link>
+          </div>
           <input
             type="password"
             id="password"
