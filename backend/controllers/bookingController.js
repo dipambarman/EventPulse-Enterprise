@@ -39,6 +39,29 @@ exports.createBooking = async (req, res) => {
   const customerEmail = customerInfo.email || null;
   const customerPhone = customerInfo.phone || null;
 
+  // C4: Server-side price calculation
+  const theme = themes.find(t => t.id === bookingData.themeId);
+  if (!theme) {
+    return res.status(400).json({ error: 'Invalid themeId' });
+  }
+  
+  let calculatedTotalPrice = theme.basePrice || theme.price;
+  const guestCount = bookingData.guestCount || 0;
+  if (guestCount > (theme.baseGuestCount || 0)) {
+    calculatedTotalPrice += (guestCount - theme.baseGuestCount) * (theme.pricePerExtraGuest || 0);
+  }
+  
+  if (bookingData.addOns && Array.isArray(bookingData.addOns)) {
+    for (const addon of bookingData.addOns) {
+      const addonPrice = Number(addon.price) || 0;
+      if (addonPrice > 0) {
+        calculatedTotalPrice += addonPrice;
+      }
+    }
+  }
+  
+  bookingData.totalPrice = calculatedTotalPrice;
+
   try {
     // Note: In real MySQL, we'd use connection.beginTransaction()
     // Since we're using a fallback engine that might be mock, we'll try to get a real connection
