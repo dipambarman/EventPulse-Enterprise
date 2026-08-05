@@ -2,6 +2,7 @@ const Razorpay = require('razorpay');
 const { v4: uuidv4 } = require('uuid');
 const crypto = require('crypto');
 const pool = require('../db');
+const { sendPaymentReceiptEmail } = require('../services/emailService');
 
 if (!process.env.RAZORPAY_KEY_ID || !process.env.RAZORPAY_KEY_SECRET) {
   console.error('CRITICAL: Razorpay keys are missing from environment variables.');
@@ -76,6 +77,23 @@ exports.verifyPaymentSignature = async (req, res) => {
         'UPDATE payments SET status = ?, gateway_payment_id = ?, gateway_signature = ? WHERE gateway_order_id = ?',
         ['completed', razorpay_payment_id, razorpay_signature, razorpay_order_id]
       );
+
+      // Attempt email dispatch
+      try {
+        const [payRows] = await pool.execute(
+          'SELECT p.*, b.customer_email FROM payments p LEFT JOIN bookings b ON p.booking_id = b.id WHERE p.gateway_order_id = ?',
+          [razorpay_order_id]
+        );
+        if (payRows && payRows.length > 0 && payRows[0].customer_email) {
+          sendPaymentReceiptEmail({
+            ...payRows[0],
+            email: payRows[0].customer_email
+          }).catch(err => console.error('Payment receipt email error:', err));
+        }
+      } catch (emailErr) {
+        console.warn('Receipt lookup warning:', emailErr.message);
+      }
+
       res.status(200).json({ success: true, message: 'Payment verified successfully' });
     } catch (dbError) {
       console.error('Database error verifying payment:', dbError);

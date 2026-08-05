@@ -4,6 +4,7 @@ const pool = require('../db');
 const { v4: uuidv4 } = require('uuid');
 const { validationResult } = require('express-validator');
 const crypto = require('crypto');
+const { sendPasswordResetEmail } = require('../services/emailService');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret';
 
@@ -125,6 +126,9 @@ exports.forgotPassword = async (req, res) => {
 
     const clientBaseUrl = process.env.CLIENT_URL || 'http://localhost:5173';
     const resetLink = `${clientBaseUrl}/reset-password?token=${rawToken}`;
+
+    // Dispatch password reset email via SMTP (or log in dev mode)
+    await sendPasswordResetEmail(user.email, resetLink);
 
     console.log(`[SECURITY AUDIT] Password Reset Requested for ${email}. Reset Link: ${resetLink}`);
 

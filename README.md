@@ -221,6 +221,13 @@ DB_NAME=event_management
 JWT_SECRET=your_jwt_secret_key
 RAZORPAY_KEY_ID=your_razorpay_key_id
 RAZORPAY_KEY_SECRET=your_razorpay_key_secret
+
+# SMTP Email Configuration (Nodemailer)
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USER=your_email@gmail.com
+SMTP_PASS=your_app_password
+EMAIL_FROM="EventPulse" <noreply@eventpulse.io>
 ```
 
 ### 3. Setup Backend

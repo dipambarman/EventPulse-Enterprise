@@ -1,6 +1,7 @@
 const pool = require('../db');
 const { v4: uuidv4 } = require('uuid');
 const { themes } = require('./themeController');
+const { sendBookingConfirmationEmail } = require('../services/emailService');
 
 const { validationResult } = require('express-validator');
 
@@ -120,13 +121,27 @@ exports.createBooking = async (req, res) => {
       conn.release();
     }
 
-    const newBooking = { id, ...bookingData, status: 'confirmed' };
+    const createdBooking = {
+      id,
+      customer_name: customerName,
+      customer_email: customerEmail,
+      customer_phone: customerPhone,
+      start_date: bookingData.date,
+      end_date: bookingData.date,
+      guest_count: bookingData.guestCount || 0,
+      total_price: bookingData.totalPrice,
+      status: 'confirmed'
+    };
 
-    // Store booking data in session for payment flow
-    if (req.session) {
-      req.session.bookingData = newBooking;
+    if (customerEmail) {
+      sendBookingConfirmationEmail(createdBooking).catch(err => console.error('Booking email dispatch error:', err));
     }
-    res.status(201).json(newBooking);
+
+    res.status(201).json({ 
+      message: 'Booking created successfully', 
+      bookingId: id, 
+      booking: createdBooking
+    });
   } catch (error) {
     if (conn && conn.rollback && conn !== pool) {
       try { await conn.rollback(); } catch(e) {}
