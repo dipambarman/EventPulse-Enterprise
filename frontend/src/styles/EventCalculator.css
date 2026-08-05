@@ -1,0 +1,483 @@
+/* ============================================
+   EventPulse — Event Calculator Styles
+   ============================================ */
+
+.ep-calc-page {
+  min-height: 100vh;
+  background: var(--ep-bg-secondary);
+  padding-bottom: var(--ep-space-20);
+}
+
+.ep-calc-hero {
+  background: linear-gradient(135deg, var(--ep-bg-dark) 0%, var(--ep-primary-900) 100%);
+  color: #ffffff;
+  padding: var(--ep-space-12) 0 var(--ep-space-16);
+  text-align: center;
+}
+
+.ep-calc-title {
+  font-family: var(--ep-font-display);
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 800;
+  color: #ffffff;
+  margin-top: var(--ep-space-3);
+  margin-bottom: var(--ep-space-3);
+}
+
+.ep-calc-subtitle {
+  font-size: var(--ep-text-lg);
+  color: rgba(255, 255, 255, 0.65);
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* Container */
+.ep-calc-container {
+  margin-top: -40px;
+  position: relative;
+  z-index: 10;
+}
+
+/* Steps Bar */
+.ep-calc-steps-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--ep-bg-primary);
+  padding: var(--ep-space-4) var(--ep-space-8);
+  border-radius: var(--ep-radius-2xl);
+  box-shadow: var(--ep-shadow-lg);
+  margin-bottom: var(--ep-space-8);
+  border: 1px solid var(--ep-gray-100);
+}
+
+.ep-calc-step-item {
+  display: flex;
+  align-items: center;
+  gap: var(--ep-space-3);
+  font-size: var(--ep-text-sm);
+  font-weight: 600;
+  color: var(--ep-gray-400);
+  cursor: pointer;
+  transition: all var(--ep-transition-base);
+}
+
+.ep-calc-step-item.active {
+  color: var(--ep-primary);
+}
+
+.ep-step-num {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--ep-gray-100);
+  color: var(--ep-gray-500);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+}
+
+.ep-calc-step-item.active .ep-step-num {
+  background: var(--ep-primary);
+  color: white;
+  box-shadow: 0 0 12px rgba(108, 60, 225, 0.4);
+}
+
+.ep-step-line {
+  flex: 1;
+  height: 2px;
+  background: var(--ep-gray-200);
+  margin: 0 var(--ep-space-4);
+}
+
+/* Layout Grid */
+.ep-calc-layout {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: var(--ep-space-8);
+  align-items: start;
+}
+
+.ep-calc-main-panel {
+  padding: var(--ep-space-8);
+}
+
+.ep-step-desc {
+  color: var(--ep-gray-500);
+  margin-bottom: var(--ep-space-8);
+}
+
+/* Step 1: Event Types */
+.ep-event-types-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: var(--ep-space-4);
+  margin-bottom: var(--ep-space-8);
+}
+
+.ep-event-type-card {
+  padding: var(--ep-space-5);
+  border-radius: var(--ep-radius-xl);
+  border: 2px solid var(--ep-gray-200);
+  cursor: pointer;
+  transition: all var(--ep-transition-base);
+  background: var(--ep-bg-primary);
+}
+
+.ep-event-type-card:hover {
+  border-color: var(--ep-primary-200);
+  transform: translateY(-2px);
+}
+
+.ep-event-type-card.selected {
+  border-color: var(--ep-primary);
+  background: var(--ep-primary-50);
+  box-shadow: 0 0 0 2px var(--ep-primary-200);
+}
+
+.ep-event-type-icon {
+  font-size: 2rem;
+  margin-bottom: var(--ep-space-2);
+}
+
+.ep-event-type-card h3 {
+  font-size: var(--ep-text-base);
+  font-weight: 700;
+  margin-bottom: var(--ep-space-1);
+}
+
+.ep-event-type-card p {
+  font-size: var(--ep-text-xs);
+  color: var(--ep-gray-500);
+}
+
+/* Slider Group */
+.ep-guest-slider-group {
+  background: var(--ep-bg-secondary);
+  padding: var(--ep-space-6);
+  border-radius: var(--ep-radius-xl);
+  margin-bottom: var(--ep-space-6);
+}
+
+.ep-guest-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--ep-space-4);
+}
+
+.ep-guest-header label {
+  font-weight: 600;
+  color: var(--ep-gray-800);
+}
+
+.ep-guest-count-badge {
+  font-family: var(--ep-font-display);
+  font-size: var(--ep-text-lg);
+  font-weight: 800;
+  color: var(--ep-primary);
+  background: var(--ep-primary-100);
+  padding: var(--ep-space-1) var(--ep-space-4);
+  border-radius: var(--ep-radius-full);
+}
+
+.ep-range-input {
+  width: 100%;
+  accent-color: var(--ep-primary);
+  cursor: pointer;
+}
+
+.ep-slider-ticks {
+  display: flex;
+  justify-content: space-between;
+  font-size: var(--ep-text-xs);
+  color: var(--ep-gray-400);
+  margin-top: var(--ep-space-2);
+}
+
+/* Duration Group */
+.ep-duration-group {
+  margin-bottom: var(--ep-space-8);
+}
+
+.ep-duration-group label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: var(--ep-space-3);
+}
+
+.ep-duration-buttons {
+  display: flex;
+  gap: var(--ep-space-3);
+}
+
+.ep-duration-btn {
+  padding: var(--ep-space-3) var(--ep-space-6);
+  border-radius: var(--ep-radius-lg);
+  border: 1.5px solid var(--ep-gray-200);
+  font-weight: 600;
+  color: var(--ep-gray-700);
+  transition: all var(--ep-transition-base);
+}
+
+.ep-duration-btn.active {
+  background: var(--ep-primary);
+  color: white;
+  border-color: var(--ep-primary);
+}
+
+/* Step Actions */
+.ep-step-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--ep-space-4);
+  margin-top: var(--ep-space-8);
+  padding-top: var(--ep-space-6);
+  border-top: 1px solid var(--ep-gray-100);
+}
+
+/* Step 2: Tiers */
+.ep-tier-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--ep-space-4);
+}
+
+.ep-tier-card {
+  padding: var(--ep-space-6);
+  border-radius: var(--ep-radius-2xl);
+  border: 2px solid var(--ep-gray-200);
+  cursor: pointer;
+  transition: all var(--ep-transition-base);
+  position: relative;
+}
+
+.ep-tier-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--ep-shadow-lg);
+}
+
+.ep-tier-card.selected {
+  border-color: var(--ep-primary);
+  background: var(--ep-primary-50);
+}
+
+.ep-tier-badge {
+  font-size: var(--ep-text-xs);
+  font-weight: 700;
+  color: var(--ep-gray-500);
+  margin-bottom: var(--ep-space-2);
+}
+
+.ep-tier-price {
+  font-family: var(--ep-font-display);
+  font-size: var(--ep-text-2xl);
+  font-weight: 800;
+  color: var(--ep-primary);
+  margin: var(--ep-space-3) 0;
+}
+
+.ep-tier-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ep-space-2);
+  font-size: var(--ep-text-xs);
+  color: var(--ep-gray-600);
+}
+
+/* Step 3: Addons */
+.ep-addons-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--ep-space-4);
+}
+
+.ep-addon-card {
+  padding: var(--ep-space-5);
+  border-radius: var(--ep-radius-xl);
+  border: 2px solid var(--ep-gray-200);
+  cursor: pointer;
+  transition: all var(--ep-transition-base);
+}
+
+.ep-addon-card.selected {
+  border-color: var(--ep-accent);
+  background: #FFF7ED;
+}
+
+.ep-addon-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--ep-space-2);
+}
+
+.ep-addon-icon {
+  font-size: 1.5rem;
+}
+
+.ep-addon-price-tag {
+  font-size: var(--ep-text-xs);
+  font-weight: 600;
+  color: var(--ep-accent-dark);
+  margin-top: var(--ep-space-2);
+}
+
+/* Quote Summary Box */
+.ep-quote-summary-box {
+  background: var(--ep-bg-secondary);
+  padding: var(--ep-space-8);
+  border-radius: var(--ep-radius-2xl);
+  border: 1px solid var(--ep-gray-200);
+}
+
+.ep-quote-line {
+  display: flex;
+  justify-content: space-between;
+  padding: var(--ep-space-3) 0;
+  font-size: var(--ep-text-sm);
+  color: var(--ep-gray-700);
+}
+
+.ep-quote-divider {
+  height: 1px;
+  background: var(--ep-gray-200);
+  margin: var(--ep-space-2) 0;
+}
+
+.ep-quote-total {
+  font-size: var(--ep-text-lg);
+  font-weight: 700;
+  color: var(--ep-gray-900);
+}
+
+.ep-total-price {
+  font-family: var(--ep-font-display);
+  font-size: var(--ep-text-2xl);
+  color: var(--ep-primary);
+}
+
+.ep-quote-deposit-callout {
+  margin-top: var(--ep-space-6);
+  padding: var(--ep-space-4);
+  background: var(--ep-primary-100);
+  border-radius: var(--ep-radius-xl);
+  display: flex;
+  justify-content: space-between;
+  color: var(--ep-primary-900);
+}
+
+/* Sidebar Card */
+.ep-calc-sidebar-card {
+  padding: var(--ep-space-6);
+  position: sticky;
+  top: calc(var(--ep-nav-height) + 20px);
+}
+
+.ep-sidebar-title {
+  font-family: var(--ep-font-display);
+  font-size: var(--ep-text-lg);
+  font-weight: 700;
+  margin-bottom: var(--ep-space-4);
+}
+
+.ep-sidebar-detail-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ep-space-3);
+  font-size: var(--ep-text-sm);
+}
+
+.ep-sidebar-row {
+  display: flex;
+  justify-content: space-between;
+}
+
+.ep-sidebar-row .label {
+  color: var(--ep-gray-500);
+}
+
+.ep-sidebar-row .val {
+  font-weight: 600;
+  color: var(--ep-gray-800);
+}
+
+.ep-sidebar-row .val.capital {
+  text-transform: capitalize;
+}
+
+.ep-sidebar-divider {
+  height: 1px;
+  background: var(--ep-gray-200);
+  margin: var(--ep-space-4) 0;
+}
+
+.ep-sidebar-price-block {
+  text-align: center;
+  margin-bottom: var(--ep-space-4);
+}
+
+.ep-price-label {
+  font-size: var(--ep-text-xs);
+  color: var(--ep-gray-500);
+  text-transform: uppercase;
+}
+
+.ep-price-amount {
+  font-family: var(--ep-font-display);
+  font-size: var(--ep-text-3xl);
+  font-weight: 800;
+  color: var(--ep-primary);
+}
+
+.ep-price-note {
+  font-size: var(--ep-text-xs);
+  color: var(--ep-gray-400);
+}
+
+.ep-sidebar-deposit {
+  background: #FFF7ED;
+  padding: var(--ep-space-3);
+  border-radius: var(--ep-radius-lg);
+  font-size: var(--ep-text-xs);
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: var(--ep-space-5);
+  color: var(--ep-accent-dark);
+}
+
+.ep-btn-block {
+  width: 100%;
+}
+
+.ep-guarantee-note {
+  display: flex;
+  align-items: center;
+  gap: var(--ep-space-2);
+  font-size: var(--ep-text-xs);
+  color: var(--ep-gray-500);
+  margin-top: var(--ep-space-4);
+  justify-content: center;
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+  .ep-calc-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .ep-tier-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .ep-calc-steps-bar {
+    overflow-x: auto;
+  }
+
+  .ep-addons-grid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -3,34 +3,20 @@ import { getAllThemes, getThemeCategories } from "../services/themeService";
 import ThemeCard from "../component/ThemeCard";
 import { Link } from "react-router-dom";
 import '../styles/Themes.css';
-import standardLogoBirthday from '../assets/standardlogo.jpeg';
-import premiumLogoBirthday from '../assets/premiumlogo.jpg';
-import exclusiveLogoBirthday from '../assets/exclusivelogo.jpeg';
-import standardLogoCorporate from '../assets/standlogo.jpg';
-import premiumLogoCorporate from '../assets/prelogo.jpg';
-import exclusiveLogoCorporate from '../assets/exclogo.jpg';
-import standardLogoWedding from '../assets/standlogowedd.jpg';
-import premiumLogoWedding from '../assets/premiumlogowedd.webp';
-import exclusiveLogoWedding from '../assets/exelogowedd.avif';
-import meghLogo from '../assets/meghlogo.avif';
-import aruLogo from '../assets/arulogo.webp';
-import sikLogo from '../assets/siklogo.jpeg.jpg';
-import manLogo from '../assets/manlogo.jpg';
-import delLogo from '../assets/dellogo.jpg';
-import kashLogo from '../assets/kashlogo.jpg';
 
 const Themes = () => {
   const [themes, setThemes] = useState([]);
   const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
-  const [sortOrder, setSortOrder] = useState(''); // 'asc' or 'desc'
+  const [sortOrder, setSortOrder] = useState('');
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchCategories() {
       try {
         const cats = await getThemeCategories();
-        setCategories(cats);
+        setCategories(cats || []);
       } catch (error) {
         console.error("Failed to fetch categories:", error);
       }
@@ -40,134 +26,119 @@ const Themes = () => {
 
   useEffect(() => {
     async function fetchThemes() {
-      if (!searchTerm && !selectedCategory) {
-        setThemes([]);
-        return;
-      }
+      setLoading(true);
       try {
         const filters = selectedCategory ? { category: selectedCategory } : {};
         const allThemes = await getAllThemes(filters);
-        setThemes(allThemes);
+        setThemes(allThemes || []);
       } catch (error) {
         console.error("Failed to fetch themes:", error);
+      } finally {
+        setLoading(false);
       }
     }
     fetchThemes();
-  }, [selectedCategory, searchTerm]);
+  }, [selectedCategory]);
 
-  // Filter themes by search term
   const filteredThemes = themes.filter(theme =>
-    theme.name.toLowerCase().includes(searchTerm.toLowerCase())
+    theme.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (theme.category && theme.category.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
-  // Sort themes by price
   const sortedThemes = [...filteredThemes].sort((a, b) => {
-    if (sortOrder === 'asc') {
-      return a.price - b.price;
-    } else if (sortOrder === 'desc') {
-      return b.price - a.price;
-    }
+    if (sortOrder === 'asc') return a.price - b.price;
+    if (sortOrder === 'desc') return b.price - a.price;
     return 0;
   });
 
   return (
-    <div className="themes-container">
-      <div className="filters-container">
-        <div className="category-filter">
-          <label htmlFor="category-select">Filter by Category: </label>
-          <select
-            id="category-select"
-            value={selectedCategory}
-            onChange={(e) => setSelectedCategory(e.target.value)}
-          >
-            <option value="">All</option>
-            {categories.map((cat) => (
-              <option key={cat} value={cat}>{cat}</option>
-            ))}
-          </select>
-        </div>
-        <div className="search-filter">
-          <label htmlFor="search-input">Search Themes: </label>
-          <input
-            id="search-input"
-            type="text"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Search by name"
-          />
-        </div>
-        <div className="sort-filter">
-          <label htmlFor="sort-select">Sort by Price: </label>
-          <select
-            id="sort-select"
-            value={sortOrder}
-            onChange={(e) => setSortOrder(e.target.value)}
-          >
-            <option value="">None</option>
-            <option value="asc">Low to High</option>
-            <option value="desc">High to Low</option>
-          </select>
+    <div className="ep-themes-page" id="themes-catalog-page">
+      {/* Header Banner */}
+      <div className="ep-themes-hero">
+        <div className="ep-container">
+          <span className="ep-badge ep-badge-primary">Curated Collection</span>
+          <h1 className="ep-themes-title">Event Packages & Experience Themes</h1>
+          <p className="ep-themes-subtitle">
+            Explore our production-ready event packages designed for weddings, corporate summits, galas, and celebrations.
+          </p>
         </div>
       </div>
-      {(searchTerm || selectedCategory) && (
-        <div className="themes-list">
-          {sortedThemes.length > 0 ? (
-            sortedThemes.map((theme) => {
-              const imageToUse = theme.id === 'b1' ? standardLogoBirthday :
-                theme.id === 'b2' ? premiumLogoBirthday :
-                theme.id === 'b3' ? exclusiveLogoBirthday :
-                theme.id === 'c1' ? standardLogoCorporate :
-                theme.id === 'c2' ? premiumLogoCorporate :
-                theme.id === 'c3' ? exclusiveLogoCorporate :
-                theme.id === 'w1' ? standardLogoWedding :
-                theme.id === 'w2' ? premiumLogoWedding :
-                theme.id === 'w3' ? exclusiveLogoWedding :
-                theme.id === 't1' ? meghLogo :
-                theme.id === 't2' ? aruLogo :
-                theme.id === 't3' ? sikLogo :
-                theme.id === 't4' ? manLogo :
-                theme.id === 't5' ? delLogo :
-                theme.id === 't6' ? kashLogo :
-                theme.category === 'Standard' ? standardLogoBirthday :
-                theme.category === 'Premium' ? premiumLogoBirthday :
-                theme.category === 'Exclusive' ? exclusiveLogoBirthday :
-                null;
-              return (
-                <div key={theme.id} className="theme-card-wrapper">
-                  <ThemeCard
-                    id={theme.id}
-                    title={theme.name}
-                    description={theme.description || ''}
-                    image={imageToUse}
-                    price={theme.price}
-                    category={theme.category}
-                    features={theme.features || []}
-                  />
-                  <Link to={`/booking/${theme.id}`} className="booking-link">
-                    Book Now
-                  </Link>
-                </div>
-              );
-            })
-          ) : (
-            <p>No themes available.</p>
-          )}
-        </div>
-      )}
 
-      <section className="intro-section">
-        <h1>Welcome to Our Event Themes</h1>
-        <p>Discover the best event themes tailored to your needs. We offer a variety of packages to make your event memorable.</p>
-        <div className="features">
-          <h2>Our Features</h2>
-          <ul>
-            <li>Wide range of customizable themes</li>
-            <li>Experienced event planners</li>
-            <li>Affordable pricing</li>
-            <li>Excellent customer support</li>
-          </ul>
+      <div className="ep-container ep-themes-body">
+        {/* Filters Toolbar */}
+        <div className="ep-filters-bar ep-card">
+          <div className="ep-filter-group">
+            <label htmlFor="search-input">Search Packages</label>
+            <input
+              id="search-input"
+              type="text"
+              className="ep-input"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Search by package name or keyword..."
+            />
+          </div>
+
+          <div className="ep-filter-group">
+            <label htmlFor="category-select">Category</label>
+            <select
+              id="category-select"
+              className="ep-select"
+              value={selectedCategory}
+              onChange={(e) => setSelectedCategory(e.target.value)}
+            >
+              <option value="">All Categories</option>
+              {categories.map((cat) => (
+                <option key={cat} value={cat}>{cat}</option>
+              ))}
+            </select>
+          </div>
+
+          <div className="ep-filter-group">
+            <label htmlFor="sort-select">Sort by Price</label>
+            <select
+              id="sort-select"
+              className="ep-select"
+              value={sortOrder}
+              onChange={(e) => setSortOrder(e.target.value)}
+            >
+              <option value="">Featured</option>
+              <option value="asc">Price: Low to High</option>
+              <option value="desc">Price: High to Low</option>
+            </select>
+          </div>
         </div>
-      </section>
+
+        {/* Results Grid */}
+        {loading ? (
+          <div className="ep-loader">
+            <div className="ep-loader-spinner"></div>
+            <p className="ep-loader-text">Loading catalog...</p>
+          </div>
+        ) : (
+          <div className="ep-themes-grid">
+            {sortedThemes.length > 0 ? (
+              sortedThemes.map((theme) => (
+                <div key={theme.id} className="ep-theme-card-wrapper">
+                  <ThemeCard theme={theme} />
+                </div>
+              ))
+            ) : (
+              <div className="ep-no-results ep-card">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--ep-gray-400)" strokeWidth="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <h3>No matching themes found</h3>
+                <p>Try resetting your search query or selecting a different category filter.</p>
+                <button
+                  className="ep-btn ep-btn-outline ep-btn-sm"
+                  onClick={() => { setSearchTerm(''); setSelectedCategory(''); setSortOrder(''); }}
+                >
+                  Reset Filters
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
     </div>
   );
 };

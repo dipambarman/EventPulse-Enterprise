@@ -1,0 +1,394 @@
+/* ============================================
+   EventPulse — Client Portal Styles
+   ============================================ */
+
+.ep-portal-page {
+  min-height: 100vh;
+  background: var(--ep-bg-secondary);
+  padding-bottom: var(--ep-space-20);
+}
+
+.ep-portal-header {
+  background: linear-gradient(135deg, var(--ep-bg-dark) 0%, var(--ep-primary-900) 100%);
+  color: #ffffff;
+  padding: var(--ep-space-12) 0 var(--ep-space-16);
+}
+
+.ep-portal-welcome {
+  display: flex;
+  align-items: center;
+  gap: var(--ep-space-5);
+}
+
+.ep-client-avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--ep-primary), var(--ep-accent));
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--ep-font-display);
+  font-size: var(--ep-text-2xl);
+  font-weight: 800;
+  box-shadow: var(--ep-shadow-glow);
+}
+
+.ep-portal-name {
+  font-family: var(--ep-font-display);
+  font-size: var(--ep-text-3xl);
+  font-weight: 800;
+  color: #ffffff;
+  margin-top: var(--ep-space-1);
+}
+
+.ep-portal-email {
+  font-size: var(--ep-text-sm);
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.ep-portal-content {
+  margin-top: -30px;
+  position: relative;
+  z-index: 10;
+}
+
+/* Tabs */
+.ep-portal-tabs {
+  display: flex;
+  gap: var(--ep-space-3);
+  margin-bottom: var(--ep-space-6);
+}
+
+.ep-portal-tab {
+  padding: var(--ep-space-3) var(--ep-space-6);
+  border-radius: var(--ep-radius-lg);
+  font-size: var(--ep-text-sm);
+  font-weight: 600;
+  background: var(--ep-bg-primary);
+  color: var(--ep-gray-600);
+  border: 1px solid var(--ep-gray-200);
+  cursor: pointer;
+  transition: all var(--ep-transition-base);
+}
+
+.ep-portal-tab.active {
+  background: var(--ep-primary);
+  color: white;
+  border-color: var(--ep-primary);
+  box-shadow: 0 4px 12px rgba(108, 60, 225, 0.3);
+}
+
+/* Portal Grid */
+.ep-portal-grid {
+  display: grid;
+  grid-template-columns: 1fr 360px;
+  gap: var(--ep-space-8);
+  align-items: start;
+}
+
+.ep-portal-left, .ep-portal-right {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ep-space-8);
+}
+
+/* Countdown Card */
+.ep-countdown-card {
+  padding: var(--ep-space-8);
+}
+
+.ep-countdown-badge {
+  font-size: var(--ep-text-xs);
+  font-weight: 700;
+  color: var(--ep-accent);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.ep-event-title {
+  font-family: var(--ep-font-display);
+  font-size: var(--ep-text-2xl);
+  font-weight: 800;
+  margin: var(--ep-space-2) 0 var(--ep-space-3);
+}
+
+.ep-event-meta {
+  display: flex;
+  gap: var(--ep-space-4);
+  font-size: var(--ep-text-sm);
+  color: var(--ep-gray-500);
+  margin-bottom: var(--ep-space-6);
+  flex-wrap: wrap;
+}
+
+/* Timer */
+.ep-countdown-timer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--ep-space-4);
+  background: var(--ep-bg-secondary);
+  padding: var(--ep-space-6);
+  border-radius: var(--ep-radius-2xl);
+  margin-bottom: var(--ep-space-6);
+}
+
+.ep-timer-block {
+  text-align: center;
+}
+
+.ep-timer-block .number {
+  font-family: var(--ep-font-display);
+  font-size: var(--ep-text-4xl);
+  font-weight: 800;
+  color: var(--ep-primary);
+  display: block;
+}
+
+.ep-timer-block .unit {
+  font-size: var(--ep-text-xs);
+  color: var(--ep-gray-500);
+  text-transform: uppercase;
+}
+
+.ep-timer-colon {
+  font-family: var(--ep-font-display);
+  font-size: var(--ep-text-3xl);
+  color: var(--ep-gray-300);
+  margin-top: -15px;
+}
+
+.ep-event-status-strip {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: var(--ep-text-sm);
+  padding-top: var(--ep-space-4);
+  border-top: 1px solid var(--ep-gray-100);
+}
+
+.ep-status-confirmed {
+  color: var(--ep-success);
+}
+
+/* Milestones */
+.ep-milestones-card {
+  padding: var(--ep-space-8);
+}
+
+.ep-milestones-card h3 {
+  font-family: var(--ep-font-display);
+  font-size: var(--ep-text-xl);
+  margin-bottom: var(--ep-space-1);
+}
+
+.ep-milestones-card .subtitle {
+  font-size: var(--ep-text-xs);
+  color: var(--ep-gray-500);
+  margin-bottom: var(--ep-space-6);
+}
+
+.ep-milestone-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ep-space-6);
+  position: relative;
+}
+
+.ep-timeline-item {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--ep-space-4);
+}
+
+.ep-timeline-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--ep-text-sm);
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.ep-timeline-item.completed .ep-timeline-icon {
+  background: var(--ep-success-light);
+  color: var(--ep-success);
+}
+
+.ep-timeline-item.current .ep-timeline-icon {
+  background: var(--ep-warning-light);
+  color: var(--ep-warning);
+  animation: ep-pulse 1.5s infinite;
+}
+
+.ep-timeline-item.pending .ep-timeline-icon {
+  background: var(--ep-gray-100);
+  color: var(--ep-gray-400);
+}
+
+.ep-timeline-content h4 {
+  font-size: var(--ep-text-base);
+  font-weight: 600;
+}
+
+.ep-timeline-content .date {
+  font-size: var(--ep-text-xs);
+  color: var(--ep-gray-400);
+}
+
+/* Planner Profile Card */
+.ep-planner-card {
+  padding: var(--ep-space-6);
+}
+
+.ep-planner-card h3 {
+  font-family: var(--ep-font-display);
+  font-size: var(--ep-text-lg);
+  margin-bottom: var(--ep-space-4);
+}
+
+.ep-planner-profile {
+  display: flex;
+  align-items: center;
+  gap: var(--ep-space-4);
+  margin-bottom: var(--ep-space-5);
+}
+
+.ep-planner-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--ep-primary-100);
+  color: var(--ep-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: var(--ep-text-lg);
+}
+
+.ep-planner-profile h4 {
+  font-size: var(--ep-text-base);
+  font-weight: 700;
+}
+
+.ep-planner-profile p {
+  font-size: var(--ep-text-xs);
+  color: var(--ep-gray-500);
+}
+
+.ep-planner-contacts {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ep-space-2);
+}
+
+/* Balance Card */
+.ep-balance-card {
+  padding: var(--ep-space-6);
+}
+
+.ep-balance-card h3 {
+  font-family: var(--ep-font-display);
+  font-size: var(--ep-text-lg);
+  margin-bottom: var(--ep-space-4);
+}
+
+.ep-balance-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: var(--ep-text-sm);
+  padding: var(--ep-space-2) 0;
+  color: var(--ep-gray-600);
+}
+
+.ep-balance-divider {
+  height: 1px;
+  background: var(--ep-gray-200);
+  margin: var(--ep-space-3) 0;
+}
+
+.ep-balance-due {
+  font-size: var(--ep-text-base);
+  font-weight: 700;
+}
+
+.text-success { color: var(--ep-success); }
+.text-danger { color: var(--ep-error); }
+
+.ep-pay-now-btn {
+  margin-top: var(--ep-space-5);
+}
+
+/* Invoices Table Card */
+.ep-invoices-table-card {
+  padding: var(--ep-space-6);
+}
+
+.ep-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: var(--ep-space-4);
+  font-size: var(--ep-text-sm);
+}
+
+.ep-table th {
+  text-align: left;
+  padding: var(--ep-space-3) var(--ep-space-4);
+  background: var(--ep-bg-secondary);
+  color: var(--ep-gray-600);
+  font-weight: 600;
+}
+
+.ep-table td {
+  padding: var(--ep-space-4);
+  border-bottom: 1px solid var(--ep-gray-100);
+}
+
+/* Modal Overlay */
+.ep-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(8px);
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--ep-space-6);
+}
+
+.ep-modal-container {
+  background: var(--ep-bg-primary);
+  width: 100%;
+  max-width: 900px;
+  max-height: 90vh;
+  overflow-y: auto;
+  border-radius: var(--ep-radius-2xl);
+  position: relative;
+  padding: var(--ep-space-6);
+}
+
+.ep-modal-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--ep-gray-100);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+  .ep-portal-grid {
+    grid-template-columns: 1fr;
+  }
+}
