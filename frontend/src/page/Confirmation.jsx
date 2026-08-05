@@ -33,9 +33,7 @@ const Confirmation = () => {
         if (paymentId) {
           // Fetch payment details from backend
           const response = await fetch(`/api/payments/razorpay/payment/${paymentId}`, {
-            headers: {
-              'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
-            }
+            credentials: 'include'
           });
           if (!response.ok) {
             throw new Error('Failed to fetch payment details');

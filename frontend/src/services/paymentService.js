@@ -12,9 +12,9 @@ export const createPaymentIntent = async (bookingDetails) => {
     const response = await fetch(`${API_URL}/payments/create-intent`, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('token')}`
+        'Content-Type': 'application/json'
       },
+      credentials: 'include',
       body: JSON.stringify(bookingDetails)
     });
     
@@ -42,9 +42,9 @@ export const confirmPayment = async (paymentIntentId, paymentData) => {
     const response = await fetch(`${API_URL}/payments/confirm/${paymentIntentId}`, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('token')}`
+        'Content-Type': 'application/json'
       },
+      credentials: 'include',
       body: JSON.stringify(paymentData)
     });
     
@@ -101,9 +101,7 @@ export const processPayment = async ({ paymentDetails, bookingInfo, amount }) =>
 export const getPaymentMethods = async () => {
   try {
     const response = await fetch(`${API_URL}/payments/methods`, {
-      headers: {
-        'Authorization': `Bearer ${localStorage.getItem('token')}`
-      }
+      credentials: 'include'
     });
     
     if (!response.ok) {
@@ -128,9 +126,9 @@ export const addPaymentMethod = async (paymentMethodData) => {
     const response = await fetch(`${API_URL}/payments/methods`, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('token')}`
+        'Content-Type': 'application/json'
       },
+      credentials: 'include',
       body: JSON.stringify(paymentMethodData)
     });
     
@@ -156,9 +154,7 @@ export const removePaymentMethod = async (paymentMethodId) => {
   try {
     const response = await fetch(`${API_URL}/payments/methods/${paymentMethodId}`, {
       method: 'DELETE',
-      headers: {
-        'Authorization': `Bearer ${localStorage.getItem('token')}`
-      }
+      credentials: 'include'
     });
     
     if (!response.ok) {
@@ -191,9 +187,7 @@ export const getPaymentHistory = async (filters = {}) => {
     const queryString = queryParams.toString() ? `?${queryParams.toString()}` : '';
     
     const response = await fetch(`${API_URL}/payments/history${queryString}`, {
-      headers: {
-        'Authorization': `Bearer ${localStorage.getItem('token')}`
-      }
+      credentials: 'include'
     });
     
     if (!response.ok) {
@@ -219,9 +213,9 @@ export const requestRefund = async (paymentId, refundData) => {
     const response = await fetch(`${API_URL}/payments/${paymentId}/refund`, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('token')}`
+        'Content-Type': 'application/json'
       },
+      credentials: 'include',
       body: JSON.stringify(refundData)
     });
     

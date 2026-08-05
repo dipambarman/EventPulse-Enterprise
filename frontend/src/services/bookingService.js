@@ -40,9 +40,9 @@ export const createBooking = async (bookingData) => {
     const response = await fetch(`${API_URL}/bookings`, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('token')}`
+        'Content-Type': 'application/json'
       },
+      credentials: 'include',
       credentials: 'include',
       body: JSON.stringify(bookingData)
     });
@@ -69,9 +69,7 @@ export const createBooking = async (bookingData) => {
 export const getBookingById = async (bookingId) => {
   try {
     const response = await fetch(`${API_URL}/bookings/${bookingId}`, {
-      headers: {
-        'Authorization': `Bearer ${localStorage.getItem('token')}`
-      }
+      credentials: 'include'
     });
     
     if (!response.ok) {
@@ -120,9 +118,9 @@ export const updateBooking = async (bookingId, updateData) => {
     const response = await fetch(`${API_URL}/bookings/${bookingId}`, {
       method: 'PATCH',
       headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('token')}`
+        'Content-Type': 'application/json'
       },
+      credentials: 'include',
       body: JSON.stringify(updateData)
     });
     
@@ -150,9 +148,9 @@ export const cancelBooking = async (bookingId, cancellationData = {}) => {
     const response = await fetch(`${API_URL}/bookings/${bookingId}/cancel`, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('token')}`
+        'Content-Type': 'application/json'
       },
+      credentials: 'include',
       body: JSON.stringify(cancellationData)
     });
     
@@ -187,9 +185,7 @@ export const getUserBookings = async (filters = {}) => {
     const queryString = queryParams.toString() ? `?${queryParams.toString()}` : '';
     
     const response = await fetch(`${API_URL}/bookings/user${queryString}`, {
-      headers: {
-        'Authorization': `Bearer ${localStorage.getItem('token')}`
-      }
+      credentials: 'include'
     });
     
     if (!response.ok) {

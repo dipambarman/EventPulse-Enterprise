@@ -4,6 +4,9 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const path = require('path');
 const session = require('express-session');
+const helmet = require('helmet');
+const cookieParser = require('cookie-parser');
+const rateLimit = require('express-rate-limit');
 
 // Import routes
 const themeRoutes = require('./routes/themeRoutes');
@@ -30,6 +33,17 @@ app.use(cors({
 }));
 app.use(bodyParser.json());
 
+// Security Middlewares
+app.use(helmet());
+app.use(cookieParser());
+
+// Rate limiting for auth routes
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 20, // limit each IP to 20 requests per windowMs
+  message: { message: 'Too many requests from this IP, please try again after 15 minutes' }
+});
+
 // Session middleware setup
 app.use(session({
   secret: process.env.SESSION_SECRET || 'eventpulse-super-secret-key',
@@ -42,7 +56,7 @@ app.use(session({
 app.use('/api/themes', themeRoutes);
 app.use('/api/bookings', bookingRoutes);
 app.use('/api/payments', paymentRoutes);
-app.use('/api/auth', authRoutes);
+app.use('/api/auth', authLimiter, authRoutes);
 
 // New Enterprise Endpoints
 app.get('/api/addons', addonController.getAllAddOns);

@@ -18,9 +18,6 @@ const Payment = () => {
       try {
         setIsLoading(true);
         const response = await fetch('/api/bookings/session/booking', {
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
-          },
           credentials: 'include'
         });
         if (!response.ok) {

@@ -36,9 +36,9 @@ const PaymentForm = ({ bookingDetails, totalAmount, onPaymentSuccess }) => {
       const response = await fetch('/api/payments/razorpay/order', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
+          'Content-Type': 'application/json'
         },
+        credentials: 'include',
         body: JSON.stringify({
           amount: totalAmount,
           currency: 'INR',
@@ -67,9 +67,9 @@ const PaymentForm = ({ bookingDetails, totalAmount, onPaymentSuccess }) => {
             const verifyResponse = await fetch('/api/payments/razorpay/verify', {
               method: 'POST',
               headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
+                'Content-Type': 'application/json'
               },
+              credentials: 'include',
               body: JSON.stringify({
                 razorpay_order_id: response.razorpay_order_id,
                 razorpay_payment_id: response.razorpay_payment_id,

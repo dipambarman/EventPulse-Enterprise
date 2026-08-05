@@ -14,12 +14,13 @@ export const register = async (userData) => {
       headers: {
         'Content-Type': 'application/json'
       },
+      credentials: 'include',
       body: JSON.stringify(userData)
     });
 
     if (!response.ok) {
       const errorData = await response.json();
-      throw new Error(errorData.message || `Error registering user: ${response.statusText}`);
+      throw new Error(errorData.message || (errorData.errors && errorData.errors.map(e => e.msg).join(', ')) || `Error registering user: ${response.statusText}`);
     }
 
     const data = await response.json();
@@ -33,7 +34,7 @@ export const register = async (userData) => {
 /**
  * Login user
  * @param {Object} credentials - { email, password }
- * @returns {Promise} - Promise resolving to { token, user }
+ * @returns {Promise} - Promise resolving to { user }
  */
 export const login = async (credentials) => {
   try {
@@ -42,12 +43,13 @@ export const login = async (credentials) => {
       headers: {
         'Content-Type': 'application/json'
       },
+      credentials: 'include',
       body: JSON.stringify(credentials)
     });
 
     if (!response.ok) {
       const errorData = await response.json();
-      throw new Error(errorData.message || `Error logging in: ${response.statusText}`);
+      throw new Error(errorData.message || (errorData.errors && errorData.errors.map(e => e.msg).join(', ')) || `Error logging in: ${response.statusText}`);
     }
 
     const data = await response.json();
@@ -59,20 +61,19 @@ export const login = async (credentials) => {
 };
 
 /**
- * Logout user by removing token from localStorage
+ * Logout user by removing user info from localStorage and clearing cookie (requires backend endpoint)
  */
-export const logout = () => {
-  localStorage.removeItem('token');
+export const logout = async () => {
   localStorage.removeItem('user');
+  // Optional: Add backend call to clear cookie if endpoint exists
+  // await fetch(`${API_URL}/auth/logout`, { method: 'POST', credentials: 'include' });
 };
 
 /**
- * Save auth token and user info to localStorage
- * @param {string} token
+ * Save user info to localStorage
  * @param {Object} user
  */
-export const saveAuthData = (token, user) => {
-  localStorage.setItem('token', token);
+export const saveAuthData = (user) => {
   localStorage.setItem('user', JSON.stringify(user));
 };
 

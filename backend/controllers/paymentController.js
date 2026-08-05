@@ -5,8 +5,8 @@ const { v4: uuidv4 } = require('uuid');
 const crypto = require('crypto');
 
 const razorpay = new Razorpay({
-  key_id: 'rzp_test_ORMoqQwaGSJZXh',
-  key_secret: 'ALzeODVLFDgLuJ3jdrVmkX0p',
+  key_id: process.env.RAZORPAY_KEY_ID || 'rzp_test_ORMoqQwaGSJZXh',
+  key_secret: process.env.RAZORPAY_KEY_SECRET || 'ALzeODVLFDgLuJ3jdrVmkX0p',
 });
 
 exports.createPaymentIntent = (req, res) => {
