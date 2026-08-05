@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const paymentController = require('../controllers/paymentController');
 const authMiddleware = require('../middleware/authMiddleware');
+const { body } = require('express-validator');
 
 // POST /api/payments/create-intent - create payment intent (auth required)
 router.post('/create-intent', authMiddleware, paymentController.createPaymentIntent);
@@ -25,7 +26,12 @@ router.get('/history', authMiddleware, paymentController.getPaymentHistory);
 router.post('/:paymentId/refund', authMiddleware, paymentController.requestRefund);
 
 // Razorpay order creation endpoint (auth required)
-router.post('/razorpay/order', authMiddleware, paymentController.createOrder);
+router.post('/razorpay/order', authMiddleware, [
+  body('amount').isNumeric().withMessage('amount must be a number').custom(val => val > 0).withMessage('amount must be positive'),
+  body('currency').optional().isString().trim().escape(),
+  body('receipt').optional().isString().trim().escape(),
+  body('bookingId').optional().isString().trim().escape()
+], paymentController.createOrder);
 
 // Razorpay payment signature verification endpoint (auth required)
 router.post('/razorpay/verify', authMiddleware, paymentController.verifyPaymentSignature);

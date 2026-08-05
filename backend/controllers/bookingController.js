@@ -2,7 +2,12 @@ const pool = require('../db');
 const { v4: uuidv4 } = require('uuid');
 const { themes } = require('./themeController');
 
+const { validationResult } = require('express-validator');
+
 exports.checkAvailability = async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
+
   const { themeId, startDate, endDate } = req.query;
   try {
     const query = 
@@ -19,20 +24,12 @@ exports.checkAvailability = async (req, res) => {
 };
 
 exports.createBooking = async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
+
   const bookingData = req.body;
   const id = uuidv4();
 
-  // Validate required fields
-  if (!bookingData.themeId) {
-    return res.status(400).json({ error: 'themeId is required' });
-  }
-  if (!bookingData.date) {
-    return res.status(400).json({ error: 'date is required' });
-  }
-  if (!bookingData.totalPrice && bookingData.totalPrice !== 0) {
-    return res.status(400).json({ error: 'totalPrice is required' });
-  }
-  
   // Extract customer info
   const customerInfo = bookingData.customerInfo || {};
   const customerName = customerInfo.name || null;
@@ -169,6 +166,9 @@ exports.getBookingById = async (req, res) => {
 };
 
 exports.updateBooking = async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
+
   const id = req.params.id;
   const updates = req.body;
   
@@ -208,6 +208,9 @@ exports.updateBooking = async (req, res) => {
 };
 
 exports.cancelBooking = async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
+
   const id = req.params.id;
   const cancellationDetails = req.body;
   const userId = req.user.id;
