@@ -7,6 +7,7 @@ const session = require('express-session');
 const helmet = require('helmet');
 const cookieParser = require('cookie-parser');
 const rateLimit = require('express-rate-limit');
+const morgan = require('morgan');
 
 // Import routes
 const themeRoutes = require('./routes/themeRoutes');
@@ -32,11 +33,12 @@ app.use(cors({
   },
   credentials: true
 }));
-app.use(bodyParser.json());
+app.use(bodyParser.json({ limit: '1mb' }));
 
 // Security Middlewares
 app.use(helmet());
 app.use(cookieParser());
+app.use(morgan('combined')); // HTTP request logging
 
 // CSRF Protection Middleware
 const csrfMiddleware = (req, res, next) => {
