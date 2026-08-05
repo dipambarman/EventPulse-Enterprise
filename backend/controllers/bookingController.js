@@ -131,6 +131,10 @@ exports.createBooking = async (req, res) => {
     }
     res.status(201).json(newBooking);
   } catch (error) {
+    if (conn && conn.rollback && conn !== pool) {
+      try { await conn.rollback(); } catch(e) {}
+      conn.release();
+    }
     console.error('Error creating booking:', error);
     res.status(500).json({ error: error.message || 'Internal server error' });
   }
