@@ -3,9 +3,9 @@ version: '3.8'
 services:
   api-gateway:
     build:
-      context: ./backend
+      context: ./backend/services/api-gateway
       dockerfile: Dockerfile
-    command: node services/api-gateway/server.js
+    command: node server.js
     ports:
       - "5000:5000"
     environment:
@@ -22,9 +22,9 @@ services:
 
   auth-service:
     build:
-      context: ./backend
+      context: ./backend/services/auth-service
       dockerfile: Dockerfile
-    command: node services/auth-service/server.js
+    command: node server.js
     ports:
       - "5001:5001"
     environment:
@@ -37,9 +37,9 @@ services:
 
   theme-service:
     build:
-      context: ./backend
+      context: ./backend/services/theme-service
       dockerfile: Dockerfile
-    command: node services/theme-service/server.js
+    command: node server.js
     ports:
       - "5002:5002"
     environment:
@@ -51,9 +51,9 @@ services:
 
   booking-service:
     build:
-      context: ./backend
+      context: ./backend/services/booking-service
       dockerfile: Dockerfile
-    command: node services/booking-service/server.js
+    command: node server.js
     ports:
       - "5003:5003"
     environment:
@@ -65,9 +65,9 @@ services:
 
   payment-service:
     build:
-      context: ./backend
+      context: ./backend/services/payment-service
       dockerfile: Dockerfile
-    command: node services/payment-service/server.js
+    command: node server.js
     ports:
       - "5004:5004"
     environment:

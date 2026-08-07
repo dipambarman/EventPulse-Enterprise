@@ -1,0 +1,21 @@
+{
+  "name": "eventpulse-booking-service",
+  "version": "1.0.0",
+  "description": "Booking & Reservation Microservice for EventPulse Enterprise",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "body-parser": "^1.20.2",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "dotenv": "^16.5.0",
+    "express": "^4.21.2",
+    "express-validator": "^7.3.2",
+    "jsonwebtoken": "^9.0.0",
+    "mysql2": "^3.14.1",
+    "uuid": "^11.1.0"
+  }
+}

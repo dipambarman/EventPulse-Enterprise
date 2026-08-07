@@ -1,10 +1,9 @@
-require('dotenv').config({ path: '../../../.env' });
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
-const authRoutes = require('../../routes/authRoutes');
-const { errorHandler } = require('../../middleware/errorHandler');
+const authRoutes = require('./routes/authRoutes');
 
 const app = express();
 const PORT = process.env.AUTH_SERVICE_PORT || 5001;
@@ -22,7 +21,10 @@ app.get('/health', (req, res) => {
 app.use('/api/auth', authRoutes);
 
 // Error Handler
-app.use(errorHandler);
+app.use((err, req, res, next) => {
+  console.error('[Auth Service Error]', err);
+  res.status(err.status || 500).json({ error: err.message || 'Internal Server Error' });
+});
 
 app.listen(PORT, () => {
   console.log(`🔐 Auth Microservice running on port ${PORT}`);
