@@ -5,7 +5,12 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "dev": "node server.js"
+    "dev": "node server.js",
+    "start:gateway": "node services/api-gateway/server.js",
+    "start:auth": "node services/auth-service/server.js",
+    "start:theme": "node services/theme-service/server.js",
+    "start:booking": "node services/booking-service/server.js",
+    "start:payment": "node services/payment-service/server.js"
   },
   "dependencies": {
     "bcryptjs": "^3.0.2",

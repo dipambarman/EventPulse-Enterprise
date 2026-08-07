@@ -1,0 +1,80 @@
+version: '3.8'
+
+services:
+  api-gateway:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    command: node services/api-gateway/server.js
+    ports:
+      - "5000:5000"
+    environment:
+      - PORT=5000
+      - AUTH_SERVICE_URL=http://auth-service:5001
+      - THEME_SERVICE_URL=http://theme-service:5002
+      - BOOKING_SERVICE_URL=http://booking-service:5003
+      - PAYMENT_SERVICE_URL=http://payment-service:5004
+    depends_on:
+      - auth-service
+      - theme-service
+      - booking-service
+      - payment-service
+
+  auth-service:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    command: node services/auth-service/server.js
+    ports:
+      - "5001:5001"
+    environment:
+      - AUTH_SERVICE_PORT=5001
+      - DB_HOST=${DB_HOST:-localhost}
+      - DB_USER=${DB_USER:-root}
+      - DB_PASSWORD=${DB_PASSWORD:-}
+      - DB_NAME=${DB_NAME:-event_management}
+      - JWT_SECRET=${JWT_SECRET:-your-secret-key}
+
+  theme-service:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    command: node services/theme-service/server.js
+    ports:
+      - "5002:5002"
+    environment:
+      - THEME_SERVICE_PORT=5002
+      - DB_HOST=${DB_HOST:-localhost}
+      - DB_USER=${DB_USER:-root}
+      - DB_PASSWORD=${DB_PASSWORD:-}
+      - DB_NAME=${DB_NAME:-event_management}
+
+  booking-service:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    command: node services/booking-service/server.js
+    ports:
+      - "5003:5003"
+    environment:
+      - BOOKING_SERVICE_PORT=5003
+      - DB_HOST=${DB_HOST:-localhost}
+      - DB_USER=${DB_USER:-root}
+      - DB_PASSWORD=${DB_PASSWORD:-}
+      - DB_NAME=${DB_NAME:-event_management}
+
+  payment-service:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    command: node services/payment-service/server.js
+    ports:
+      - "5004:5004"
+    environment:
+      - PAYMENT_SERVICE_PORT=5004
+      - DB_HOST=${DB_HOST:-localhost}
+      - DB_USER=${DB_USER:-root}
+      - DB_PASSWORD=${DB_PASSWORD:-}
+      - DB_NAME=${DB_NAME:-event_management}
+      - RAZORPAY_KEY_ID=${RAZORPAY_KEY_ID}
+      - RAZORPAY_KEY_SECRET=${RAZORPAY_KEY_SECRET}
