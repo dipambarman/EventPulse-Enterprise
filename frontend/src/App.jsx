@@ -1,26 +1,35 @@
-import React from 'react';
+import React, { lazy, Suspense } from 'react';
 import { Route, Routes } from 'react-router-dom';
 import './App.css';
 import Navbar from './component/Navbar';
 import Footer from './component/Footer';
-import Home from './page/Home';
-import Themes from './page/Themes';
-import ThemeDetails from './page/ThemeDetails';
-import EventCalculator from './page/EventCalculator';
-import ClientPortal from './page/ClientPortal';
-import AdminDashboard from './page/AdminDashboard';
-import Booking from './page/Booking';
-import Payment from './page/Payment';
-import Confirmation from './page/Confirmation';
-import Login from './page/Login';
-import Register from './page/Register';
-import ForgotPassword from './page/ForgotPassword';
-import ResetPassword from './page/ResetPassword';
-import AboutUsPage from './page/AboutUs';
-import ContactUs from './page/ContactUs';
-import Terms from './page/Terms';
-import Privacy from './page/Privacy';
-import Error from './page/Error';
+
+// Lazy loading page routes for optimal initial bundle size and speed
+const Home = lazy(() => import('./page/Home'));
+const Themes = lazy(() => import('./page/Themes'));
+const ThemeDetails = lazy(() => import('./page/ThemeDetails'));
+const EventCalculator = lazy(() => import('./page/EventCalculator'));
+const ClientPortal = lazy(() => import('./page/ClientPortal'));
+const AdminDashboard = lazy(() => import('./page/AdminDashboard'));
+const Booking = lazy(() => import('./page/Booking'));
+const Payment = lazy(() => import('./page/Payment'));
+const Confirmation = lazy(() => import('./page/Confirmation'));
+const Login = lazy(() => import('./page/Login'));
+const Register = lazy(() => import('./page/Register'));
+const ForgotPassword = lazy(() => import('./page/ForgotPassword'));
+const ResetPassword = lazy(() => import('./page/ResetPassword'));
+const AboutUsPage = lazy(() => import('./page/AboutUs'));
+const ContactUs = lazy(() => import('./page/ContactUs'));
+const Terms = lazy(() => import('./page/Terms'));
+const Privacy = lazy(() => import('./page/Privacy'));
+const Error = lazy(() => import('./page/Error'));
+
+const PageLoader = () => (
+  <div className="ep-loader" role="status" aria-label="Loading page content">
+    <div className="ep-loader-spinner" />
+    <span className="ep-loader-text">Loading EventPulse...</span>
+  </div>
+);
 
 const App = () => {
   return (
@@ -30,28 +39,30 @@ const App = () => {
       </header>
 
       <main className="app-main">
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/themes" element={<Themes />} />
-          <Route path="/themes/:id" element={<ThemeDetails />} />
-          <Route path="/calculator" element={<EventCalculator />} />
-          <Route path="/client-portal" element={<ClientPortal />} />
-          <Route path="/admin" element={<AdminDashboard />} />
-          <Route path="/booking" element={<Booking />} />
-          <Route path="/booking/:themeId" element={<Booking />} />
-          <Route path="/payment" element={<Payment />} />
-          <Route path="/payment/:bookingId" element={<Payment />} />
-          <Route path="/confirmation" element={<Confirmation />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route path="/reset-password" element={<ResetPassword />} />
-          <Route path="/about-us" element={<AboutUsPage />} />
-          <Route path="/contact" element={<ContactUs />} />
-          <Route path="/terms" element={<Terms />} />
-          <Route path="/privacy" element={<Privacy />} />
-          <Route path="*" element={<Error />} />
-        </Routes>
+        <Suspense fallback={<PageLoader />}>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/themes" element={<Themes />} />
+            <Route path="/themes/:id" element={<ThemeDetails />} />
+            <Route path="/calculator" element={<EventCalculator />} />
+            <Route path="/client-portal" element={<ClientPortal />} />
+            <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/booking" element={<Booking />} />
+            <Route path="/booking/:themeId" element={<Booking />} />
+            <Route path="/payment" element={<Payment />} />
+            <Route path="/payment/:bookingId" element={<Payment />} />
+            <Route path="/confirmation" element={<Confirmation />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
+            <Route path="/about-us" element={<AboutUsPage />} />
+            <Route path="/contact" element={<ContactUs />} />
+            <Route path="/terms" element={<Terms />} />
+            <Route path="/privacy" element={<Privacy />} />
+            <Route path="*" element={<Error />} />
+          </Routes>
+        </Suspense>
       </main>
 
       <footer>
@@ -62,3 +73,4 @@ const App = () => {
 };
 
 export default App;
+

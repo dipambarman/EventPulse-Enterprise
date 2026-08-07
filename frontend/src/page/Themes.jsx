@@ -111,9 +111,17 @@ const Themes = () => {
 
         {/* Results Grid */}
         {loading ? (
-          <div className="ep-loader">
-            <div className="ep-loader-spinner"></div>
-            <p className="ep-loader-text">Loading catalog...</p>
+          <div className="ep-themes-grid" aria-label="Loading themes catalog">
+            {[1, 2, 3, 4, 5, 6].map((n) => (
+              <div key={n} className="ep-skeleton-card">
+                <div className="ep-skeleton-img" />
+                <div className="ep-skeleton-body">
+                  <div className="ep-skeleton-line title" />
+                  <div className="ep-skeleton-line sub" />
+                  <div className="ep-skeleton-line" style={{ width: '40%', marginTop: 'auto' }} />
+                </div>
+              </div>
+            ))}
           </div>
         ) : (
           <div className="ep-themes-grid">

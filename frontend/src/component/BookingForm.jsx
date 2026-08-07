@@ -146,6 +146,22 @@ const BookingForm = ({ theme, availableDates, onCreateBooking, error }) => {
     <form onSubmit={handleSubmit} className="booking-form">
       <h1>Book Your Event</h1>
 
+      {/* Interactive Booking Stepper Indicator */}
+      <div className="ep-stepper" aria-label="Booking steps progress">
+        <div className={`ep-stepper-item ${formData.selectedDate ? 'completed' : 'active'}`}>
+          <div className="ep-stepper-circle">{formData.selectedDate ? '✓' : '1'}</div>
+          <span className="ep-stepper-label">Event Date</span>
+        </div>
+        <div className={`ep-stepper-item ${formData.guestCount > 0 ? (formData.selectedDate ? 'active' : '') : ''}`}>
+          <div className="ep-stepper-circle">2</div>
+          <span className="ep-stepper-label">Venue & Guests</span>
+        </div>
+        <div className={`ep-stepper-item ${formData.firstName && formData.email ? 'completed' : ''}`}>
+          <div className="ep-stepper-circle">3</div>
+          <span className="ep-stepper-label">Confirm</span>
+        </div>
+      </div>
+
       {mainThemeImage && (
         <div className="theme-main-image-container">
           <img src={mainThemeImage} alt={`${theme?.name || 'Theme'} main`} className="theme-main-image" />
