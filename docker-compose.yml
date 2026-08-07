@@ -14,11 +14,13 @@ services:
       - THEME_SERVICE_URL=http://theme-service:5002
       - BOOKING_SERVICE_URL=http://booking-service:5003
       - PAYMENT_SERVICE_URL=http://payment-service:5004
+      - NOTIFICATION_SERVICE_URL=http://notification-service:5005
     depends_on:
       - auth-service
       - theme-service
       - booking-service
       - payment-service
+      - notification-service
 
   auth-service:
     build:
@@ -78,3 +80,19 @@ services:
       - DB_NAME=${DB_NAME:-event_management}
       - RAZORPAY_KEY_ID=${RAZORPAY_KEY_ID}
       - RAZORPAY_KEY_SECRET=${RAZORPAY_KEY_SECRET}
+
+  notification-service:
+    build:
+      context: ./backend/services/notification-service
+      dockerfile: Dockerfile
+    command: node server.js
+    ports:
+      - "5005:5005"
+    environment:
+      - NOTIFICATION_SERVICE_PORT=5005
+      - SMTP_HOST=${SMTP_HOST:-smtp.ethereal.email}
+      - SMTP_PORT=${SMTP_PORT:-587}
+      - SMTP_USER=${SMTP_USER}
+      - SMTP_PASS=${SMTP_PASS}
+      - VAPID_PUBLIC_KEY=${VAPID_PUBLIC_KEY}
+      - VAPID_PRIVATE_KEY=${VAPID_PRIVATE_KEY}

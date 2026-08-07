@@ -17,6 +17,7 @@ const SERVICES = {
   theme: process.env.THEME_SERVICE_URL || 'http://localhost:5002',
   booking: process.env.BOOKING_SERVICE_URL || 'http://localhost:5003',
   payment: process.env.PAYMENT_SERVICE_URL || 'http://localhost:5004',
+  notification: process.env.NOTIFICATION_SERVICE_URL || 'http://localhost:5005',
 };
 
 const allowedOrigins = ['http://localhost:5173', 'http://localhost:3000'];
@@ -100,6 +101,7 @@ app.use('/api/auth', (req, res) => proxyRequest(SERVICES.auth, req, res));
 app.use(['/api/themes', '/api/addons'], (req, res) => proxyRequest(SERVICES.theme, req, res));
 app.use('/api/bookings', (req, res) => proxyRequest(SERVICES.booking, req, res));
 app.use('/api/payments', (req, res) => proxyRequest(SERVICES.payment, req, res));
+app.use('/api/notifications', (req, res) => proxyRequest(SERVICES.notification, req, res));
 
 // Serve Frontend Build Artifacts in Production
 const frontendPath = path.join(__dirname, '..', '..', 'frontend', 'dist');
