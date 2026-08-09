@@ -4,6 +4,7 @@ const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const compression = require('compression');
+const rateLimit = require('express-rate-limit');
 const http = require('http');
 const path = require('path');
 const { v4: uuidv4 } = require('uuid');
@@ -34,6 +35,16 @@ app.use(cors({
 
 app.use(compression());
 app.use(helmet({ contentSecurityPolicy: false }));
+
+// Global Rate Limiting
+const globalLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // Limit each IP to 100 requests per windowMs
+  message: { error: 'Too many requests from this IP, please try again after 15 minutes' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+app.use('/api', globalLimiter);
 
 // Request Correlation ID tracking
 app.use((req, res, next) => {

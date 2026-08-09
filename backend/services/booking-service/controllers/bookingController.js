@@ -1,6 +1,7 @@
 const db = require('../db/db');
 const { v4: uuidv4 } = require('uuid');
 const { validationResult } = require('express-validator');
+const auditService = require('../services/auditService');
 
 exports.checkAvailability = async (req, res) => {
   const errors = validationResult(req);
@@ -42,6 +43,8 @@ exports.createBooking = async (req, res) => {
         bookingData.customerInfo?.phone || '0000000000'
       ]
     );
+    
+    await auditService.logAction(userId, 'BOOKING_CREATED', 'bookings', id, { themeId: bookingData.themeId, amount: bookingData.totalPrice });
 
     // Call Notification Service to send booking confirmation email
     const NOTIFICATION_SERVICE_URL = process.env.NOTIFICATION_SERVICE_URL || 'http://localhost:5005';
@@ -107,14 +110,31 @@ exports.updateBooking = async (req, res) => {
 };
 
 exports.cancelBooking = async (req, res) => {
+  const userId = req.user ? req.user.id : 'usr-anon';
+  await auditService.logAction(userId, 'BOOKING_CANCELLED', 'bookings', req.params.id);
   res.json({ message: 'Booking cancelled successfully', id: req.params.id });
 };
 
 exports.getUserBookings = async (req, res) => {
   try {
     const userId = req.user ? req.user.id : 'usr-1';
-    const [rows] = await db.query('SELECT * FROM bookings WHERE user_id = ?', [userId]);
-    res.json(rows || []);
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const offset = (page - 1) * limit;
+
+    const [rows] = await db.query('SELECT * FROM bookings WHERE user_id = ? LIMIT ? OFFSET ?', [userId, limit, offset]);
+    const [countRow] = await db.query('SELECT COUNT(*) AS total FROM bookings WHERE user_id = ?', [userId]);
+    const total = countRow[0].total;
+
+    res.json({
+      data: rows || [],
+      pagination: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit)
+      }
+    });
   } catch (error) {
     res.status(500).json({ error: 'Internal server error' });
   }
@@ -123,7 +143,14 @@ exports.getUserBookings = async (req, res) => {
 // Admin Endpoints
 exports.getAllBookings = async (req, res) => {
   try {
-    const [rows] = await db.query('SELECT * FROM bookings');
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const offset = (page - 1) * limit;
+
+    const [rows] = await db.query('SELECT * FROM bookings ORDER BY created_at DESC LIMIT ? OFFSET ?', [limit, offset]);
+    const [countRow] = await db.query('SELECT COUNT(*) AS total FROM bookings');
+    const total = countRow[0].total;
+
     // Map to frontend expected format
     const bookings = rows.map(b => ({
       id: b.id,
@@ -134,7 +161,16 @@ exports.getAllBookings = async (req, res) => {
       status: b.status,
       stage: b.status === 'confirmed' ? 'In Planning' : 'Pending'
     }));
-    res.json(bookings);
+
+    res.json({
+      data: bookings,
+      pagination: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit)
+      }
+    });
   } catch (error) {
     console.error('Get all bookings error:', error);
     res.status(500).json({ error: 'Failed to retrieve bookings' });

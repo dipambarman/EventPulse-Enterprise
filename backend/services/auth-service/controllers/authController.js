@@ -4,6 +4,7 @@ const db = require('../db/db');
 const { v4: uuidv4 } = require('uuid');
 const { validationResult } = require('express-validator');
 const crypto = require('crypto');
+const auditService = require('../services/auditService');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'fallback_jwt_secret';
 const NOTIFICATION_SERVICE_URL = process.env.NOTIFICATION_SERVICE_URL || 'http://localhost:5005';
@@ -28,6 +29,9 @@ exports.register = async (req, res) => {
       'INSERT INTO users (id, username, email, password_hash, role) VALUES (?, ?, ?, ?, ?)',
       [id, username, email, hashedPassword, 'client']
     );
+
+    await auditService.logAction(id, 'USER_REGISTER', 'users', id, { email, username });
+
     res.status(201).json({ message: 'User registered successfully' });
   } catch (error) {
     console.error('Registration error:', error);
@@ -58,6 +62,8 @@ exports.login = async (req, res) => {
       { expiresIn: '1h' }
     );
     
+    await auditService.logAction(user.id, 'USER_LOGIN', 'users', user.id, { ip: req.ip });
+
     res.cookie('token', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',

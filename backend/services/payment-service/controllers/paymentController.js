@@ -206,10 +206,39 @@ exports.removePaymentMethod = async (req, res) => {
 
 exports.getPaymentHistory = async (req, res) => {
   try {
-    const [rows] = await db.query('SELECT * FROM payments');
-    res.json(rows || []);
+    const userId = req.user ? req.user.id : 'usr-1';
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const offset = (page - 1) * limit;
+
+    // Use a JOIN to get payments for bookings owned by this user
+    const [rows] = await db.query(
+      `SELECT p.* FROM payments p 
+       JOIN bookings b ON p.booking_id = b.id 
+       WHERE b.user_id = ? 
+       ORDER BY p.created_at DESC LIMIT ? OFFSET ?`,
+      [userId, limit, offset]
+    );
+
+    const [countRow] = await db.query(
+      `SELECT COUNT(*) AS total FROM payments p 
+       JOIN bookings b ON p.booking_id = b.id 
+       WHERE b.user_id = ?`,
+      [userId]
+    );
+    const total = countRow[0].total;
+
+    res.json({
+      data: rows || [],
+      pagination: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit)
+      }
+    });
   } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch payment history' });
+    res.status(500).json({ message: 'Error retrieving payment history' });
   }
 };
 
