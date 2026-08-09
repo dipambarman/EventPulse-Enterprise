@@ -1,13 +1,14 @@
 <div align="center">
   <img src="frontend/public/vite.svg" alt="EventPulse Logo" width="100"/>
-  <h1>⚡ EventPulse</h1>
+  <h1>⚡ EventPulse Enterprise</h1>
   <p><strong>A Full-Stack Event Management & Dynamic Booking Platform</strong></p>
 
   <p>
     <a href="https://nodejs.org"><img src="https://img.shields.io/badge/Node.js-v18+-339933?style=for-the-badge&logo=nodedotjs" alt="Node.js"/></a>
     <a href="https://react.dev"><img src="https://img.shields.io/badge/React-v18-61DAFB?style=for-the-badge&logo=react" alt="React 18"/></a>
     <a href="https://expressjs.com"><img src="https://img.shields.io/badge/Express-v4.21-000000?style=for-the-badge&logo=express" alt="Express.js"/></a>
-    <a href="https://www.mysql.com"><img src="https://img.shields.io/badge/MySQL-Normalized_Schema-4479A1?style=for-the-badge&logo=mysql" alt="MySQL"/></a>
+    <a href="https://www.mysql.com"><img src="https://img.shields.io/badge/MySQL-8.0-4479A1?style=for-the-badge&logo=mysql" alt="MySQL"/></a>
+    <a href="https://www.docker.com/"><img src="https://img.shields.io/badge/Docker-Compose-2496ED?style=for-the-badge&logo=docker" alt="Docker"/></a>
     <a href="https://razorpay.com"><img src="https://img.shields.io/badge/Payment-Razorpay-02042B?style=for-the-badge&logo=razorpay" alt="Razorpay"/></a>
     <a href="./LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue?style=for-the-badge" alt="License"/></a>
   </p>
@@ -18,7 +19,6 @@
     <a href="#-system-architecture">Architecture</a> •
     <a href="#-security--best-practices">Security</a> •
     <a href="#-database-design">Database Design</a> •
-    <a href="#-api-reference">API Reference</a> •
     <a href="#%EF%B8%8F-getting-started">Getting Started</a>
   </p>
 </div>
@@ -27,59 +27,55 @@
 
 ## 📋 Overview
 
-**EventPulse** is a responsive full-stack event management and booking platform built with **React, Node.js, Express, and MySQL**. It provides end-to-end functionality for users to browse themed event setups (Weddings, Corporate Gatherings, Birthdays, Travel), calculate dynamic pricing based on custom add-ons and guest tiers, reserve event dates, and make secure online payments via Razorpay.
+**EventPulse Enterprise** is a scalable, microservices-driven event management and booking platform. It provides end-to-end functionality for users to browse themed event setups (Weddings, Corporate Gatherings, Birthdays), calculate dynamic pricing, reserve event dates, and make secure online payments.
 
-The project features a **decoupled architecture**, robust **RESTful APIs**, **role-based frontend views** (Client Portal & Admin Dashboard), and a **dual-mode database layer** that automatically falls back to an in-memory data store if MySQL is not running locally.
+The project features a **Microservices Architecture** orchestrated via **Docker Compose**, an **API Gateway** for centralized routing and rate-limiting, and robust backend services (Auth, Booking, Theme, Payment, Notification) all backed by a normalized **MySQL** database.
 
 ---
 
 ## ✨ Key Features
 
-- **🎨 Dynamic Theme Catalog**: Filter and view details for various event categories with transparent pricing structures.
+- **🎨 Dynamic Theme Catalog**: Filter and view details for various event categories with transparent pricing structures, powered by the Theme Service.
 - **🧮 Interactive Event Cost Calculator**: Estimate total event expenses in real time based on guest counts, venue selection, and optional add-on services.
-- **🔐 Secure Authentication**: User signup and login with JWT tokens delivered securely via `HttpOnly`, `SameSite` cookies to mitigate XSS vulnerabilities.
+- **🔐 Secure Authentication & RBAC**: JWT tokens delivered via `HttpOnly`, `SameSite` cookies. Strict Role-Based Access Control separates Client and Admin privileges.
 - **📅 Date Availability & Booking**: Real-time validation of availability, preventing overlapping slot bookings.
 - **💳 Integrated Razorpay Payments**: Order creation, payment modal handling, and server-side HMAC SHA-256 signature verification.
-- **📊 Admin Dashboard**: Administrative controls to review all bookings, track total revenue, update status, and manage event offerings.
-- **💾 Flexible Data Persistence**: MySQL database connection pool with automatic fallback to a mock in-memory database store for immediate local evaluation without external database setup.
+- **📧 Automated Notifications**: Automated transactional emails (Booking Confirmations, Payment Receipts) dispatched asynchronously via the Notification Service.
+- **📊 Admin Dashboard**: Full administrative CRUD capabilities to review bookings, track revenue analytics, update statuses, and manage event offerings.
+- **📝 Audit Logging**: Immutable database logs tracking critical actions (logins, bookings, cancellations) across microservices.
+- **🐳 Docker Orchestration**: Seamless local development via `docker-compose up`, automatically provisioning the API Gateway, 5 Node.js microservices, and a seeded MySQL container.
 
 ---
 
 ## 🏗 System Architecture
 
 ```mermaid
-flowchart TD
-    subgraph Client ["Frontend (React 18 + Vite)"]
-        UI["React SPA (React Router v7 + Custom Styles)"]
-        State["Auth Context & Axios API Client"]
+graph TB
+    subgraph Frontend["Frontend (React 18 + Vite)"]
+        Pages["18 Pages (Home, Themes, Booking, Admin, etc.)"]
+        Components["Reusable Components & Context Providers"]
     end
 
-    subgraph Security ["Security & Middleware"]
-        CORS["CORS Config (Whitelisted Origin)"]
-        Helmet["Helmet Security Headers"]
-        RateLimit["Rate Limiting Middleware"]
-        AuthMiddleware["JWT Authentication (HttpOnly Cookie)"]
+    subgraph Gateway["API Gateway (:5000)"]
+        Proxy["HTTP Proxy + CORS + Helmet"]
+        RateLimiter["Global Rate Limiting (100 req/15m)"]
     end
 
-    subgraph Backend ["Backend Runtime (Express.js)"]
-        Router["Express API Routes"]
-        Controllers["Controllers (Auth, Bookings, Payments, Themes)"]
+    subgraph Microservices["Backend Microservices (Node.js/Express)"]
+        Auth["Auth Service (:5001)"]
+        Theme["Theme Service (:5002)"]
+        Booking["Booking Service (:5003)"]
+        Payment["Payment Service (:5004)"]
+        Notification["Notification Service (:5005)"]
     end
 
-    subgraph Storage ["Database & External Services"]
-        MySQL["MySQL Database Pool"]
-        MockStore["In-Memory Store (Dev Fallback)"]
-        Razorpay["Razorpay SDK & Payment Verification"]
+    subgraph Data["Data Layer"]
+        MySQL["MySQL Database (Docker)"]
     end
 
-    UI --> State
-    State -->|HTTP Requests / Credentials| CORS
-    CORS --> Helmet --> RateLimit --> AuthMiddleware
-    AuthMiddleware --> Router
-    Router --> Controllers
-    Controllers -->|SQL Queries| MySQL
-    Controllers -.->|Fallback Mode| MockStore
-    Controllers -->|HMAC Verification| Razorpay
+    Frontend --> Gateway
+    Gateway --> Microservices
+    Microservices --> Data
 ```
 
 ---
@@ -88,18 +84,18 @@ flowchart TD
 
 | Security Feature | Implementation Detail | Benefit |
 |---|---|---|
+| **Microservices Isolation** | 6 distinct services mapped via an API Gateway | Limits blast radius and allows independent scaling |
 | **Token Storage** | JWT tokens stored in `HttpOnly`, `SameSite=Strict` cookies | Protects tokens from JavaScript access and XSS theft |
-| **SQL Injection Defense** | Parameterized queries using `mysql2` prepared statements (`pool.execute`) | Prevents malicious SQL injection attacks |
-| **Server-Side Price Calculation** | Total prices calculated exclusively on the backend using theme rates and add-on lookups | Prevents client-side price manipulation |
-| **Payment Verification** | HMAC SHA-256 signature verification on Razorpay payment callbacks | Ensures payment integrity before updating booking status |
-| **IDOR Protection** | Ownership verification checks (`WHERE user_id = ? AND id = ?`) on user-scoped endpoints | Prevents unauthorized access to other users' bookings |
-| **Rate Limiting & Headers** | Express Rate Limit on auth routes and Helmet middleware | Helps prevent brute-force attacks and standard web vulnerabilities |
+| **Validation & Rate Limiting** | `express-validator` on core routes, `express-rate-limit` on the gateway | Prevents malformed data injection and brute-force attacks |
+| **Payment Verification** | HMAC SHA-256 signature verification on Razorpay callbacks | Ensures payment integrity before updating booking status |
+| **Audit Trails** | Centralized `auditService` writing to an `audit_logs` table | Tracks critical user lifecycle and financial events |
+| **Role-Based Access Control** | Dedicated `adminOnly` middleware | Restricts Executive Dashboard and catalog mutations |
 
 ---
 
 ## 💾 Database Design
 
-The MySQL database schema uses a relational layout to handle users, themes, bookings, add-ons, and payment logs.
+The MySQL database schema is highly normalized (3NF) to handle users, themes, bookings, add-ons, payments, and audit logs.
 
 ```mermaid
 erDiagram
@@ -108,100 +104,22 @@ erDiagram
     BOOKINGS ||--o{ BOOKING_ADD_ONS : contains
     ADD_ONS ||--o{ BOOKING_ADD_ONS : satisfies
     BOOKINGS ||--o{ PAYMENTS : records
-
-    USERS {
-        string id PK
-        string username
-        string email UK
-        string password_hash
-        timestamp created_at
-    }
-
-    THEMES {
-        string id PK
-        string name
-        string category
-        decimal price
-        text description
-    }
-
-    BOOKINGS {
-        string id PK
-        string theme_id FK
-        string user_id FK
-        date start_date
-        date end_date
-        decimal total_price
-        int guest_count
-        enum status
-    }
-
-    ADD_ONS {
-        string id PK
-        string name
-        decimal price
-    }
-
-    BOOKING_ADD_ONS {
-        string booking_id PK, FK
-        string add_on_id PK, FK
-        int quantity
-        decimal price_at_booking
-    }
-
-    PAYMENTS {
-        string id PK
-        string booking_id FK
-        decimal amount
-        enum status
-        string gateway_order_id
-        string gateway_payment_id
-        timestamp created_at
-    }
+    USERS ||--o{ AUDIT_LOGS : performs
 ```
 
 ### Schema Highlights
 - **Historical Price Auditing**: The `booking_add_ons` table stores `price_at_booking` to retain accurate financial records even if global add-on prices change later.
-- **Soft Deletion**: Key entities maintain a `deleted_at` column for non-destructive records management.
-- **Foreign Key Constraints**: Enforces data integrity across bookings, users, and themes.
-
----
-
-## 🔌 API Reference
-
-### Auth Endpoints (`/api/auth`)
-| Method | Endpoint | Access | Description |
-|---|---|---|---|
-| `POST` | `/api/auth/register` | Public | Register a new user account |
-| `POST` | `/api/auth/login` | Public | Authenticate user & set HttpOnly JWT cookie |
-| `POST` | `/api/auth/logout` | Authenticated | Clear authentication cookie |
-| `POST` | `/api/auth/forgot-password` | Public | Initiate password reset (anti-enumeration protection & SHA-256 token hashing) |
-| `POST` | `/api/auth/reset-password` | Public | Verify reset token & update user password (15-min expiration constraint) |
-
-### Booking Endpoints (`/api/bookings`)
-| Method | Endpoint | Access | Description |
-|---|---|---|---|
-| `GET` | `/api/bookings/availability` | Public | Check date availability for event themes |
-| `POST` | `/api/bookings` | Authenticated | Create a new booking with server-calculated pricing |
-| `GET` | `/api/bookings/user` | Authenticated | Fetch active bookings for the logged-in user |
-| `GET` | `/api/bookings/:id` | Authenticated | Fetch specific booking details (ownership validated) |
-| `POST` | `/api/bookings/:id/cancel` | Authenticated | Cancel an existing booking |
-
-### Payment Endpoints (`/api/payments`)
-| Method | Endpoint | Access | Description |
-|---|---|---|---|
-| `POST` | `/api/payments/razorpay/order` | Authenticated | Initialize Razorpay order and save pending payment |
-| `POST` | `/api/payments/razorpay/verify` | Authenticated | Verify HMAC signature and confirm payment status |
-| `GET` | `/api/payments/history` | Authenticated | View payment transaction history for user |
+- **Audit Logging**: The `audit_logs` table persistently tracks user actions across services.
+- **Automated Seeding**: `backend/migrations/` executes automatically on Docker startup, creating the schema and seeding default catalog themes.
 
 ---
 
 ## ⚙️ Getting Started
 
 ### Prerequisites
-- **Node.js**: `v18.0.0` or higher
+- **Docker** and **Docker Compose**
+- **Node.js**: `v18.0.0` or higher (if running services individually outside Docker)
 - **npm**: `v9.0.0` or higher
-- **MySQL**: (Optional – if MySQL is not configured, the app will run using the built-in in-memory dataset)
 
 ### 1. Clone the Repository
 ```bash
@@ -210,41 +128,35 @@ cd project-event-management
 ```
 
 ### 2. Configure Environment Variables
-Create a `.env` file in the root directory:
-```env
-PORT=5000
-NODE_ENV=development
-DB_HOST=localhost
-DB_USER=root
-DB_PASSWORD=your_password
-DB_NAME=event_management
-JWT_SECRET=your_jwt_secret_key
-RAZORPAY_KEY_ID=your_razorpay_key_id
-RAZORPAY_KEY_SECRET=your_razorpay_key_secret
-
-# SMTP Email Configuration (Nodemailer)
-SMTP_HOST=smtp.gmail.com
-SMTP_PORT=587
-SMTP_USER=your_email@gmail.com
-SMTP_PASS=your_app_password
-EMAIL_FROM="EventPulse" <noreply@eventpulse.io>
-```
-
-### 3. Setup Backend
+Duplicate the example environment file:
 ```bash
-cd backend
-npm install
-npm run dev
+cp .env.example .env
 ```
-*Backend server runs on `http://localhost:5000`*
+Edit `.env` to include your actual **Razorpay Keys** and **SMTP Email Credentials**.
+
+### 3. Run with Docker Compose (Recommended)
+This will spin up the MySQL database, API Gateway, and all 5 microservices automatically.
+```bash
+docker-compose up --build
+```
+*The API Gateway will be available on `http://localhost:5000`.*
 
 ### 4. Setup Frontend
+In a new terminal window:
 ```bash
-cd ../frontend
+cd frontend
 npm install
 npm run dev
 ```
-*Frontend dev server runs on `http://localhost:5173`*
+*The React application will be available on `http://localhost:5173`.*
+
+---
+
+## 🧪 Testing
+
+Test harnesses are configured for both frontend and backend development:
+- **Backend (Jest & Supertest)**: `cd backend/services/booking-service && npm test`
+- **Frontend (Vitest & React Testing Library)**: `cd frontend && npm test`
 
 ---
 
@@ -252,30 +164,24 @@ npm run dev
 
 ```plaintext
 project-event-management/
-├── README.md                    # Project documentation
+├── docker-compose.yml           # Multi-container orchestration
 ├── backend/
-│   ├── config/                  # Configuration & constants
-│   ├── controllers/             # Request handlers & business logic
-│   │   ├── addonController.js
-│   │   ├── analyticsController.js
-│   │   ├── authController.js
-│   │   ├── bookingController.js
-│   │   ├── paymentController.js
-│   │   └── themeController.js
-│   ├── db.js                    # MySQL pool initialization with in-memory fallback
-│   ├── middleware/              # Auth & security middleware
-│   ├── migrations/              # SQL schema scripts (`create_tables.sql`)
-│   ├── routes/                  # Express route definitions
-│   └── server.js                # Server entrypoint
+│   ├── migrations/              # SQL Schema & Seeder scripts
+│   └── services/                # Microservices Ecosystem
+│       ├── api-gateway/         # Reverse proxy & Rate limiting
+│       ├── auth-service/        # Registration, Login, JWT, Password Resets
+│       ├── booking-service/     # Availability, CRM, and Booking Core
+│       ├── notification-service/# Email (Nodemailer) & Web Push
+│       ├── payment-service/     # Razorpay Integrations & Order history
+│       └── theme-service/       # Event Catalog & Add-ons CRUD
 └── frontend/
     ├── src/
-    │   ├── components/          # Reusable UI components (Navbar, ThemeCard, etc.)
-    │   ├── pages/               # Page components (Home, Booking, ClientPortal, AdminDashboard)
-    │   ├── services/            # Axios API client setup
-    │   ├── App.jsx              # Routing & main component wrapper
-    │   └── main.jsx             # React DOM entrypoint
-    ├── vite.config.js           # Vite configuration & API proxy
-    └── package.json             # Frontend dependencies
+    │   ├── component/           # Reusable UI components
+    │   ├── context/             # AuthContext, ToastContext
+    │   ├── page/                # React Router Views
+    │   ├── styles/              # Centralized CSS Architecture
+    │   └── App.jsx              # Application router
+    └── vite.config.js
 ```
 
 ---
