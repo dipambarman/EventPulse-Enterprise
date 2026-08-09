@@ -3,6 +3,7 @@ import { Route, Routes } from 'react-router-dom';
 import './App.css';
 import Navbar from './component/Navbar';
 import Footer from './component/Footer';
+import ProtectedRoute from './component/ProtectedRoute';
 
 // Lazy loading page routes for optimal initial bundle size and speed
 const Home = lazy(() => import('./page/Home'));
@@ -45,13 +46,13 @@ const App = () => {
             <Route path="/themes" element={<Themes />} />
             <Route path="/themes/:id" element={<ThemeDetails />} />
             <Route path="/calculator" element={<EventCalculator />} />
-            <Route path="/client-portal" element={<ClientPortal />} />
-            <Route path="/admin" element={<AdminDashboard />} />
-            <Route path="/booking" element={<Booking />} />
-            <Route path="/booking/:themeId" element={<Booking />} />
-            <Route path="/payment" element={<Payment />} />
-            <Route path="/payment/:bookingId" element={<Payment />} />
-            <Route path="/confirmation" element={<Confirmation />} />
+            <Route path="/client-portal" element={<ProtectedRoute><ClientPortal /></ProtectedRoute>} />
+            <Route path="/admin" element={<ProtectedRoute adminOnly><AdminDashboard /></ProtectedRoute>} />
+            <Route path="/booking" element={<ProtectedRoute><Booking /></ProtectedRoute>} />
+            <Route path="/booking/:themeId" element={<ProtectedRoute><Booking /></ProtectedRoute>} />
+            <Route path="/payment" element={<ProtectedRoute><Payment /></ProtectedRoute>} />
+            <Route path="/payment/:bookingId" element={<ProtectedRoute><Payment /></ProtectedRoute>} />
+            <Route path="/confirmation" element={<ProtectedRoute><Confirmation /></ProtectedRoute>} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />

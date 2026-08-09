@@ -1,25 +1,27 @@
 import React, { useState } from 'react';
 import '../styles/Login.css';
-import { login, saveAuthData } from '../services/authService';
-import { useNavigate, Link } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const { login } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     try {
-      const data = await login({ email, password });
-      saveAuthData(data.token, data.user);
-      alert('Login successful!');
+      await login({ email, password });
       setEmail('');
       setPassword('');
-      navigate('/');
-      window.location.reload();
+      
+      // Redirect back to where the user was trying to go, or home
+      const redirectPath = searchParams.get('redirect') || '/';
+      navigate(redirectPath, { replace: true });
     } catch (err) {
       setError(err.message || 'Invalid email or password');
     }

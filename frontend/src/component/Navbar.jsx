@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { getCurrentUser, logout } from '../services/authService';
+import { useAuth } from '../context/AuthContext';
 import '../styles/navbar.css';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [user, setUser] = useState(getCurrentUser());
+  const { user, logout } = useAuth();
   const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
 
@@ -15,14 +15,6 @@ const Navbar = () => {
     };
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  useEffect(() => {
-    const handleStorageChange = () => {
-      setUser(getCurrentUser());
-    };
-    window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
   }, []);
 
   // Close menu on route change
@@ -36,7 +28,6 @@ const Navbar = () => {
 
   const handleLogout = () => {
     logout();
-    setUser(null);
   };
 
   const isActive = (path) => {

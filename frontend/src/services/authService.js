@@ -34,7 +34,7 @@ export const register = async (userData) => {
 /**
  * Login user
  * @param {Object} credentials - { email, password }
- * @returns {Promise} - Promise resolving to { user }
+ * @returns {Promise} - Promise resolving to { token, user }
  */
 export const login = async (credentials) => {
   try {
@@ -61,17 +61,24 @@ export const login = async (credentials) => {
 };
 
 /**
- * Logout user by removing user info from localStorage and clearing cookie (requires backend endpoint)
+ * Logout user — calls backend to clear HttpOnly JWT cookie, then clears localStorage
  */
 export const logout = async () => {
+  try {
+    await fetch(`${API_URL}/auth/logout`, {
+      method: 'POST',
+      credentials: 'include'
+    });
+  } catch (err) {
+    console.warn('Backend logout call failed:', err.message);
+  }
   localStorage.removeItem('user');
-  // Optional: Add backend call to clear cookie if endpoint exists
-  // await fetch(`${API_URL}/auth/logout`, { method: 'POST', credentials: 'include' });
+  localStorage.removeItem('token');
 };
 
 /**
- * Save user info to localStorage
- * @param {Object} user
+ * Save user info and token to localStorage
+ * @param {Object} user - User object from login response
  */
 export const saveAuthData = (user) => {
   localStorage.setItem('user', JSON.stringify(user));
@@ -139,3 +146,4 @@ export const getCurrentUser = () => {
   const user = localStorage.getItem('user');
   return user ? JSON.parse(user) : null;
 };
+

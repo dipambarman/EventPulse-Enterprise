@@ -39,12 +39,16 @@ const fixSvgAutoAttributes = () => {
 
 fixSvgAutoAttributes();
 
+import { AuthProvider } from './context/AuthContext';
+
 ReactDOM.createRoot(document.getElementById('root')).render(
   <ErrorBoundary>
     <ToastProvider>
-      <BrowserRouter>
-        <App />
-      </BrowserRouter>
+      <AuthProvider>
+        <BrowserRouter>
+          <App />
+        </BrowserRouter>
+      </AuthProvider>
     </ToastProvider>
   </ErrorBoundary>
 );
