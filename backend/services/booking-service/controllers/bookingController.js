@@ -43,6 +43,25 @@ exports.createBooking = async (req, res) => {
       ]
     );
 
+    // Call Notification Service to send booking confirmation email
+    const NOTIFICATION_SERVICE_URL = process.env.NOTIFICATION_SERVICE_URL || 'http://localhost:5005';
+    try {
+      fetch(`${NOTIFICATION_SERVICE_URL}/api/notifications/email`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: 'booking_confirmation',
+          recipientEmail: bookingData.customerInfo?.email || 'guest@example.com',
+          customerName: bookingData.customerInfo?.name || 'Guest User',
+          bookingId: id,
+          eventDate: bookingData.date || new Date().toISOString().split('T')[0],
+          totalPrice: bookingData.totalPrice || 15000
+        })
+      }).catch(e => console.warn('[Booking Service] Failed to notify notification-service:', e.message));
+    } catch (err) {
+      console.warn('[Booking Service] Failed to initiate notification:', err.message);
+    }
+
     res.status(201).json({
       message: 'Booking created successfully',
       bookingId: id,
@@ -77,7 +96,14 @@ exports.getBookingFromSession = async (req, res) => {
 };
 
 exports.updateBooking = async (req, res) => {
-  res.json({ message: 'Booking updated successfully', id: req.params.id });
+  try {
+    const { status, stage } = req.body;
+    await db.query('UPDATE bookings SET status = ? WHERE id = ?', [status, req.params.id]);
+    res.json({ message: 'Booking updated successfully', id: req.params.id, status, stage });
+  } catch (error) {
+    console.error('Update booking error:', error);
+    res.status(500).json({ error: 'Failed to update booking' });
+  }
 };
 
 exports.cancelBooking = async (req, res) => {
@@ -93,3 +119,53 @@ exports.getUserBookings = async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 };
+
+// Admin Endpoints
+exports.getAllBookings = async (req, res) => {
+  try {
+    const [rows] = await db.query('SELECT * FROM bookings');
+    // Map to frontend expected format
+    const bookings = rows.map(b => ({
+      id: b.id,
+      client: b.customer_name || 'Client',
+      theme: b.theme_id || 'Theme',
+      date: b.start_date,
+      amount: b.total_price || 0,
+      status: b.status,
+      stage: b.status === 'confirmed' ? 'In Planning' : 'Pending'
+    }));
+    res.json(bookings);
+  } catch (error) {
+    console.error('Get all bookings error:', error);
+    res.status(500).json({ error: 'Failed to retrieve bookings' });
+  }
+};
+
+exports.getAdminAnalytics = async (req, res) => {
+  try {
+    const [rows] = await db.query('SELECT * FROM bookings WHERE status != "cancelled"');
+    
+    const totalRevenue = rows.reduce((sum, b) => sum + (Number(b.total_price) || 0), 0);
+    const monthlyRevenue = totalRevenue * 0.3; // Rough approximation for mock
+    const activeBookings = rows.length;
+    
+    res.json({
+      totalRevenue,
+      monthlyRevenue,
+      activeBookings,
+      conversionRate: 34.2,
+      monthlyChart: [
+        { month: 'Jan', revenue: 320000 },
+        { month: 'Feb', revenue: 410000 },
+        { month: 'Mar', revenue: 380000 },
+        { month: 'Apr', revenue: 520000 },
+        { month: 'May', revenue: 610000 },
+        { month: 'Jun', revenue: monthlyRevenue }
+      ]
+    });
+  } catch (error) {
+    console.error('Analytics error:', error);
+    res.status(500).json({ error: 'Failed to generate analytics' });
+  }
+};
+

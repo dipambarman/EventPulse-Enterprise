@@ -23,9 +23,10 @@ exports.register = async (req, res) => {
     }
     const hashedPassword = await bcrypt.hash(password, 10);
     const id = uuidv4();
+    // Default role is 'client' explicitly
     await db.query(
-      'INSERT INTO users (id, username, email, password_hash) VALUES (?, ?, ?, ?)',
-      [id, username, email, hashedPassword]
+      'INSERT INTO users (id, username, email, password_hash, role) VALUES (?, ?, ?, ?, ?)',
+      [id, username, email, hashedPassword, 'client']
     );
     res.status(201).json({ message: 'User registered successfully' });
   } catch (error) {

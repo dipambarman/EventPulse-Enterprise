@@ -139,6 +139,25 @@ exports.verifyPaymentSignature = async (req, res) => {
           ['confirmed', booking_id]
         );
         console.log(`[Payment Service] Booking ${booking_id} confirmed after payment verification`);
+        
+        // Fetch booking details to send receipt
+        const [bookings] = await db.query('SELECT * FROM bookings WHERE id = ?', [booking_id]);
+        if (bookings && bookings.length > 0) {
+          const booking = bookings[0];
+          const NOTIFICATION_SERVICE_URL = process.env.NOTIFICATION_SERVICE_URL || 'http://localhost:5005';
+          fetch(`${NOTIFICATION_SERVICE_URL}/api/notifications/email`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              type: 'payment_receipt',
+              recipientEmail: booking.customer_email || 'guest@example.com',
+              customerName: booking.customer_name || 'Guest User',
+              bookingId: booking_id,
+              amount: booking.total_price || 0,
+              paymentMethod: 'Razorpay'
+            })
+          }).catch(e => console.warn('[Payment Service] Failed to notify notification-service:', e.message));
+        }
       } catch (bookingErr) {
         // Booking update is best-effort (booking may be in a different service/DB)
         console.warn('[Payment Service] Could not update booking status:', bookingErr.message);

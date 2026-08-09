@@ -2,7 +2,12 @@ const express = require('express');
 const router = express.Router();
 const bookingController = require('../controllers/bookingController');
 const authMiddleware = require('../middleware/authMiddleware');
+const { adminOnly } = require('../middleware/roleMiddleware');
 const { body, query } = require('express-validator');
+
+// Admin Routes (Must be before /:id)
+router.get('/admin/analytics', authMiddleware, adminOnly, bookingController.getAdminAnalytics);
+router.get('/admin/all', authMiddleware, adminOnly, bookingController.getAllBookings);
 
 router.get('/availability', [
   query('themeId').notEmpty().withMessage('themeId is required').trim().escape()
@@ -12,7 +17,7 @@ router.post('/', authMiddleware, bookingController.createBooking);
 router.get('/session/booking', authMiddleware, bookingController.getBookingFromSession);
 router.get('/user', authMiddleware, bookingController.getUserBookings);
 router.get('/:id', authMiddleware, bookingController.getBookingById);
-router.patch('/:id', authMiddleware, bookingController.updateBooking);
+router.patch('/:id', authMiddleware, adminOnly, bookingController.updateBooking);
 router.post('/:id/cancel', authMiddleware, bookingController.cancelBooking);
 
 module.exports = router;

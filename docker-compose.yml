@@ -1,6 +1,23 @@
 version: '3.8'
 
 services:
+  mysql:
+    image: mysql:8.0
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: event_management
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./backend/migrations:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   api-gateway:
     build:
       context: ./backend/services/api-gateway
@@ -31,11 +48,15 @@ services:
       - "5001:5001"
     environment:
       - AUTH_SERVICE_PORT=5001
-      - DB_HOST=${DB_HOST:-localhost}
-      - DB_USER=${DB_USER:-root}
-      - DB_PASSWORD=${DB_PASSWORD:-}
-      - DB_NAME=${DB_NAME:-event_management}
+      - DB_HOST=mysql
+      - DB_USER=root
+      - DB_PASSWORD=root
+      - DB_NAME=event_management
       - JWT_SECRET=${JWT_SECRET:-your-secret-key}
+      - NOTIFICATION_SERVICE_URL=http://notification-service:5005
+    depends_on:
+      mysql:
+        condition: service_healthy
 
   theme-service:
     build:
@@ -46,10 +67,13 @@ services:
       - "5002:5002"
     environment:
       - THEME_SERVICE_PORT=5002
-      - DB_HOST=${DB_HOST:-localhost}
-      - DB_USER=${DB_USER:-root}
-      - DB_PASSWORD=${DB_PASSWORD:-}
-      - DB_NAME=${DB_NAME:-event_management}
+      - DB_HOST=mysql
+      - DB_USER=root
+      - DB_PASSWORD=root
+      - DB_NAME=event_management
+    depends_on:
+      mysql:
+        condition: service_healthy
 
   booking-service:
     build:
@@ -60,10 +84,14 @@ services:
       - "5003:5003"
     environment:
       - BOOKING_SERVICE_PORT=5003
-      - DB_HOST=${DB_HOST:-localhost}
-      - DB_USER=${DB_USER:-root}
-      - DB_PASSWORD=${DB_PASSWORD:-}
-      - DB_NAME=${DB_NAME:-event_management}
+      - DB_HOST=mysql
+      - DB_USER=root
+      - DB_PASSWORD=root
+      - DB_NAME=event_management
+      - NOTIFICATION_SERVICE_URL=http://notification-service:5005
+    depends_on:
+      mysql:
+        condition: service_healthy
 
   payment-service:
     build:
@@ -74,12 +102,16 @@ services:
       - "5004:5004"
     environment:
       - PAYMENT_SERVICE_PORT=5004
-      - DB_HOST=${DB_HOST:-localhost}
-      - DB_USER=${DB_USER:-root}
-      - DB_PASSWORD=${DB_PASSWORD:-}
-      - DB_NAME=${DB_NAME:-event_management}
+      - DB_HOST=mysql
+      - DB_USER=root
+      - DB_PASSWORD=root
+      - DB_NAME=event_management
       - RAZORPAY_KEY_ID=${RAZORPAY_KEY_ID}
       - RAZORPAY_KEY_SECRET=${RAZORPAY_KEY_SECRET}
+      - NOTIFICATION_SERVICE_URL=http://notification-service:5005
+    depends_on:
+      mysql:
+        condition: service_healthy
 
   notification-service:
     build:
@@ -96,3 +128,6 @@ services:
       - SMTP_PASS=${SMTP_PASS}
       - VAPID_PUBLIC_KEY=${VAPID_PUBLIC_KEY}
       - VAPID_PRIVATE_KEY=${VAPID_PRIVATE_KEY}
+
+volumes:
+  mysql_data:

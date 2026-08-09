@@ -1,6 +1,7 @@
 const db = require('../db/db');
+const { v4: uuidv4 } = require('uuid');
 
-const themesCatalog = [
+let themesCatalog = [
   { id: 'b1', name: 'Birthday Standard', category: 'Birthday', price: 3000, basePrice: 3000, baseGuestCount: 10, pricePerExtraGuest: 100, venueDiscountAmount: 200 },
   { id: 'b2', name: 'Birthday Premium', category: 'Birthday', price: 8099, basePrice: 8099, baseGuestCount: 15, pricePerExtraGuest: 150, venueDiscountAmount: 300 },
   { id: 'b3', name: 'Birthday Exclusive', category: 'Birthday', price: 15000, basePrice: 15000, baseGuestCount: 20, pricePerExtraGuest: 200, venueDiscountAmount: 400 },
@@ -21,7 +22,8 @@ exports.getAllThemes = async (req, res) => {
     if (category) {
       filtered = themesCatalog.filter(t => t.category.toLowerCase() === category.toLowerCase());
     }
-    res.json(filtered);
+    // Convert price to number just in case and map status for admin
+    res.json(filtered.map(t => ({ ...t, price: Number(t.price) || 0, status: 'Active' })));
   } catch (error) {
     res.status(500).json({ message: 'Error retrieving experience themes' });
   }
@@ -54,5 +56,50 @@ exports.getThemeAddOns = async (req, res) => {
     ]);
   } catch (error) {
     res.status(500).json({ message: 'Error retrieving add-ons' });
+  }
+};
+
+// Admin Operations
+exports.createTheme = async (req, res) => {
+  try {
+    const newTheme = {
+      id: req.body.id || `pkg-${uuidv4().substring(0, 8)}`,
+      name: req.body.name,
+      category: req.body.category,
+      price: Number(req.body.price),
+      basePrice: Number(req.body.price),
+      baseGuestCount: 10,
+      pricePerExtraGuest: 0,
+      venueDiscountAmount: 0,
+      status: 'Active'
+    };
+    themesCatalog.push(newTheme);
+    res.status(201).json({ message: 'Theme created successfully', theme: newTheme });
+  } catch (error) {
+    console.error('Create theme error:', error);
+    res.status(500).json({ message: 'Error creating theme' });
+  }
+};
+
+exports.updateTheme = async (req, res) => {
+  try {
+    const index = themesCatalog.findIndex(t => t.id === req.params.id);
+    if (index === -1) return res.status(404).json({ message: 'Theme not found' });
+    
+    themesCatalog[index] = { ...themesCatalog[index], ...req.body, id: req.params.id };
+    res.json({ message: 'Theme updated successfully', theme: themesCatalog[index] });
+  } catch (error) {
+    console.error('Update theme error:', error);
+    res.status(500).json({ message: 'Error updating theme' });
+  }
+};
+
+exports.deleteTheme = async (req, res) => {
+  try {
+    themesCatalog = themesCatalog.filter(t => t.id !== req.params.id);
+    res.json({ message: 'Theme deleted successfully' });
+  } catch (error) {
+    console.error('Delete theme error:', error);
+    res.status(500).json({ message: 'Error deleting theme' });
   }
 };
