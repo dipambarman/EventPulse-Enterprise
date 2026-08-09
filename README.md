@@ -123,8 +123,8 @@ erDiagram
 
 ### 1. Clone the Repository
 ```bash
-git clone https://github.com/dipambarman/project-event-management.git
-cd project-event-management
+git clone https://github.com/dipambarman/EventPulse-Enterprise.git
+cd EventPulse-Enterprise
 ```
 
 ### 2. Configure Environment Variables
@@ -163,7 +163,7 @@ Test harnesses are configured for both frontend and backend development:
 ## 📂 Project Structure
 
 ```plaintext
-project-event-management/
+EventPulse-Enterprise/
 ├── docker-compose.yml           # Multi-container orchestration
 ├── backend/
 │   ├── migrations/              # SQL Schema & Seeder scripts
