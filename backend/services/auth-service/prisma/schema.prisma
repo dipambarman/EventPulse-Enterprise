@@ -1,0 +1,47 @@
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "windows"]
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String          @id @default(uuid())
+  username      String          @unique
+  email         String          @unique
+  password_hash String
+  role          String          @default("client")
+  created_at    DateTime        @default(now())
+  updated_at    DateTime        @updatedAt
+  password_resets PasswordReset[]
+
+  @@map("users")
+}
+
+model PasswordReset {
+  id         String   @id @default(uuid())
+  user_id    String
+  token_hash String   @unique
+  expires_at DateTime
+  used       Boolean  @default(false)
+  created_at DateTime @default(now())
+
+  user       User     @relation(fields: [user_id], references: [id])
+
+  @@map("password_resets")
+}
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  user_id    String?
+  action     String
+  entity     String?
+  entity_id  String?
+  details    String?  @db.Text
+  created_at DateTime @default(now())
+
+  @@map("audit_logs")
+}
