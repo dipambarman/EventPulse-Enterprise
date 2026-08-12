@@ -1,11 +1,24 @@
+const prisma = require('../db/db');
+
 exports.getAllAddOns = async (req, res) => {
-  res.json([
-    { id: 'a1', name: 'Extra Photographer', price: 10000 },
-    { id: 'a2', name: 'Live Acoustic Band', price: 20000 },
-    { id: 'a3', name: 'VIP Pyro Effects', price: 15000 }
-  ]);
+  try {
+    const addOns = await prisma.addOn.findMany();
+    res.json(addOns);
+  } catch (error) {
+    res.status(500).json({ message: 'Error retrieving add-ons' });
+  }
 };
 
 exports.getAddOnById = async (req, res) => {
-  res.json({ id: req.params.id, name: 'Extra Photographer', price: 10000 });
+  try {
+    const addOn = await prisma.addOn.findUnique({
+      where: { id: req.params.id }
+    });
+    if (!addOn) {
+      return res.status(404).json({ message: 'Add-on not found' });
+    }
+    res.json(addOn);
+  } catch (error) {
+    res.status(500).json({ message: 'Error retrieving add-on' });
+  }
 };

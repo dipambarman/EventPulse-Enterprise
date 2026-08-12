@@ -1,0 +1,42 @@
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "windows"]
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Category {
+  id     String  @id @default(uuid())
+  name   String  @unique
+  themes Theme[]
+
+  @@map("categories")
+}
+
+model Theme {
+  id                  String   @id @default(uuid())
+  name                String
+  category_id         String
+  price               Float
+  basePrice           Float?
+  baseGuestCount      Int?
+  pricePerExtraGuest  Float?
+  venueDiscountAmount Float?
+  description         String?
+  status              String   @default("Active")
+  
+  category            Category @relation(fields: [category_id], references: [id])
+
+  @@map("themes")
+}
+
+model AddOn {
+  id    String @id @default(uuid())
+  name  String
+  price Float
+
+  @@map("add_ons")
+}
