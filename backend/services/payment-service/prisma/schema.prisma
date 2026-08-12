@@ -1,0 +1,43 @@
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "windows"]
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model PaymentStatus {
+  id       String    @id @default(uuid())
+  name     String    @unique
+  payments Payment[]
+
+  @@map("payment_statuses")
+}
+
+model PaymentMethod {
+  id       String    @id @default(uuid())
+  name     String    @unique
+  payments Payment[]
+
+  @@map("payment_methods")
+}
+
+model Payment {
+  id                 String   @id @default(uuid())
+  booking_id         String
+  amount             Float
+  status_id          String
+  method_id          String
+  gateway_order_id   String?
+  gateway_payment_id String?
+  gateway_signature  String?
+  created_at         DateTime @default(now())
+  updated_at         DateTime @updatedAt
+
+  status PaymentStatus @relation(fields: [status_id], references: [id])
+  method PaymentMethod @relation(fields: [method_id], references: [id])
+
+  @@map("payments")
+}
