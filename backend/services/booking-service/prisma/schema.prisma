@@ -1,0 +1,48 @@
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "windows"]
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Customer {
+  id    String @id @default(uuid())
+  name  String
+  email String @unique
+  phone String
+
+  bookings Booking[]
+
+  @@map("customers")
+}
+
+model BookingStatus {
+  id    String @id @default(uuid())
+  name  String @unique
+
+  bookings Booking[]
+
+  @@map("booking_statuses")
+}
+
+model Booking {
+  id          String   @id @default(uuid())
+  theme_id    String
+  user_id     String
+  customer_id String
+  status_id   String
+  start_date  DateTime
+  end_date    DateTime
+  total_price Float
+  guest_count Int
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  customer    Customer      @relation(fields: [customer_id], references: [id])
+  status      BookingStatus @relation(fields: [status_id], references: [id])
+
+  @@map("bookings")
+}

@@ -1,4 +1,4 @@
-const db = require('../db/db');
+const prisma = require('../db/db');
 const { v4: uuidv4 } = require('uuid');
 const { validationResult } = require('express-validator');
 const auditService = require('../services/auditService');
@@ -9,10 +9,18 @@ exports.checkAvailability = async (req, res) => {
 
   const { themeId, startDate, endDate } = req.query;
   try {
-    const [rows] = await db.query(
-      'SELECT COUNT(*) AS count FROM bookings WHERE theme_id = ? AND status = \'confirmed\'',
-      [themeId, startDate, endDate]
-    );
+    const status = await prisma.bookingStatus.findUnique({ where: { name: 'confirmed' } });
+    if (status) {
+      const count = await prisma.booking.count({
+        where: {
+          theme_id: themeId,
+          status_id: status.id,
+          start_date: { lte: new Date(endDate) },
+          end_date: { gte: new Date(startDate) }
+        }
+      });
+      // Mock logic: always true for now
+    }
     res.json({ available: true });
   } catch (error) {
     res.status(500).json({ error: 'Internal server error' });
@@ -28,25 +36,43 @@ exports.createBooking = async (req, res) => {
   const userId = req.user ? req.user.id : 'usr-anon';
 
   try {
-    await db.query(
-      'INSERT INTO bookings (id, theme_id, user_id, start_date, end_date, total_price, guest_count, customer_name, customer_email, customer_phone) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-      [
-        id,
-        bookingData.themeId || 'b1',
-        userId,
-        bookingData.date || new Date().toISOString().split('T')[0],
-        bookingData.endDate || bookingData.date || new Date().toISOString().split('T')[0],
-        bookingData.totalPrice || 15000,
-        bookingData.guestCount || 10,
-        bookingData.customerInfo?.name || 'Guest User',
-        bookingData.customerInfo?.email || 'guest@example.com',
-        bookingData.customerInfo?.phone || '0000000000'
-      ]
-    );
+    const email = bookingData.customerInfo?.email || 'guest@example.com';
+    let customer = await prisma.customer.findUnique({ where: { email } });
     
-    await auditService.logAction(userId, 'BOOKING_CREATED', 'bookings', id, { themeId: bookingData.themeId, amount: bookingData.totalPrice });
+    if (!customer) {
+      customer = await prisma.customer.create({
+        data: {
+          name: bookingData.customerInfo?.name || 'Guest User',
+          email,
+          phone: bookingData.customerInfo?.phone || '0000000000'
+        }
+      });
+    }
 
-    // Call Notification Service to send booking confirmation email
+    let status = await prisma.bookingStatus.findUnique({ where: { name: 'pending' } });
+    if (!status) {
+      status = await prisma.bookingStatus.create({ data: { name: 'pending' } });
+    }
+
+    const start_date = new Date(bookingData.date || new Date().toISOString().split('T')[0]);
+    const end_date = new Date(bookingData.endDate || bookingData.date || new Date().toISOString().split('T')[0]);
+
+    const booking = await prisma.booking.create({
+      data: {
+        id,
+        theme_id: bookingData.themeId || 'b1',
+        user_id: userId,
+        customer_id: customer.id,
+        status_id: status.id,
+        start_date,
+        end_date,
+        total_price: Number(bookingData.totalPrice || 15000),
+        guest_count: Number(bookingData.guestCount || 10)
+      }
+    });
+    
+    await auditService.logAction(userId, 'BOOKING_CREATED', 'bookings', id, { themeId: booking.theme_id, amount: booking.total_price });
+
     const NOTIFICATION_SERVICE_URL = process.env.NOTIFICATION_SERVICE_URL || 'http://localhost:5005';
     try {
       fetch(`${NOTIFICATION_SERVICE_URL}/api/notifications/email`, {
@@ -54,11 +80,11 @@ exports.createBooking = async (req, res) => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           type: 'booking_confirmation',
-          recipientEmail: bookingData.customerInfo?.email || 'guest@example.com',
-          customerName: bookingData.customerInfo?.name || 'Guest User',
+          recipientEmail: customer.email,
+          customerName: customer.name,
           bookingId: id,
-          eventDate: bookingData.date || new Date().toISOString().split('T')[0],
-          totalPrice: bookingData.totalPrice || 15000
+          eventDate: start_date.toISOString(),
+          totalPrice: booking.total_price
         })
       }).catch(e => console.warn('[Booking Service] Failed to notify notification-service:', e.message));
     } catch (err) {
@@ -70,9 +96,9 @@ exports.createBooking = async (req, res) => {
       bookingId: id,
       booking: {
         id,
-        themeId: bookingData.themeId,
-        date: bookingData.date,
-        totalPrice: bookingData.totalPrice || 15000,
+        themeId: booking.theme_id,
+        date: booking.start_date,
+        totalPrice: booking.total_price,
         status: 'pending'
       }
     });
@@ -84,11 +110,21 @@ exports.createBooking = async (req, res) => {
 
 exports.getBookingById = async (req, res) => {
   try {
-    const [rows] = await db.query('SELECT * FROM bookings WHERE id = ?', [req.params.id]);
-    if (!rows || rows.length === 0) {
+    const booking = await prisma.booking.findUnique({
+      where: { id: req.params.id },
+      include: { customer: true, status: true }
+    });
+    if (!booking) {
       return res.status(404).json({ error: 'Booking record not found' });
     }
-    res.json(rows[0]);
+    // Flatten response for backward compatibility
+    res.json({
+      ...booking,
+      customer_name: booking.customer.name,
+      customer_email: booking.customer.email,
+      customer_phone: booking.customer.phone,
+      status: booking.status.name
+    });
   } catch (error) {
     res.status(500).json({ error: 'Internal server error' });
   }
@@ -101,7 +137,15 @@ exports.getBookingFromSession = async (req, res) => {
 exports.updateBooking = async (req, res) => {
   try {
     const { status, stage } = req.body;
-    await db.query('UPDATE bookings SET status = ? WHERE id = ?', [status, req.params.id]);
+    let statusRecord = await prisma.bookingStatus.findUnique({ where: { name: status } });
+    if (!statusRecord) {
+      statusRecord = await prisma.bookingStatus.create({ data: { name: status } });
+    }
+
+    await prisma.booking.update({
+      where: { id: req.params.id },
+      data: { status_id: statusRecord.id }
+    });
     res.json({ message: 'Booking updated successfully', id: req.params.id, status, stage });
   } catch (error) {
     console.error('Update booking error:', error);
@@ -122,12 +166,21 @@ exports.getUserBookings = async (req, res) => {
     const limit = parseInt(req.query.limit) || 10;
     const offset = (page - 1) * limit;
 
-    const [rows] = await db.query('SELECT * FROM bookings WHERE user_id = ? LIMIT ? OFFSET ?', [userId, limit, offset]);
-    const [countRow] = await db.query('SELECT COUNT(*) AS total FROM bookings WHERE user_id = ?', [userId]);
-    const total = countRow[0].total;
+    const bookings = await prisma.booking.findMany({
+      where: { user_id: userId },
+      skip: offset,
+      take: limit,
+      include: { status: true, customer: true }
+    });
+    
+    const total = await prisma.booking.count({ where: { user_id: userId } });
 
     res.json({
-      data: rows || [],
+      data: bookings.map(b => ({
+        ...b,
+        status: b.status.name,
+        customer_name: b.customer.name
+      })),
       pagination: {
         total,
         page,
@@ -140,30 +193,32 @@ exports.getUserBookings = async (req, res) => {
   }
 };
 
-// Admin Endpoints
 exports.getAllBookings = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     const offset = (page - 1) * limit;
 
-    const [rows] = await db.query('SELECT * FROM bookings ORDER BY created_at DESC LIMIT ? OFFSET ?', [limit, offset]);
-    const [countRow] = await db.query('SELECT COUNT(*) AS total FROM bookings');
-    const total = countRow[0].total;
+    const bookings = await prisma.booking.findMany({
+      orderBy: { created_at: 'desc' },
+      skip: offset,
+      take: limit,
+      include: { customer: true, status: true }
+    });
+    const total = await prisma.booking.count();
 
-    // Map to frontend expected format
-    const bookings = rows.map(b => ({
+    const mappedBookings = bookings.map(b => ({
       id: b.id,
-      client: b.customer_name || 'Client',
-      theme: b.theme_id || 'Theme',
+      client: b.customer.name,
+      theme: b.theme_id,
       date: b.start_date,
-      amount: b.total_price || 0,
-      status: b.status,
-      stage: b.status === 'confirmed' ? 'In Planning' : 'Pending'
+      amount: b.total_price,
+      status: b.status.name,
+      stage: b.status.name === 'confirmed' ? 'In Planning' : 'Pending'
     }));
 
     res.json({
-      data: bookings,
+      data: mappedBookings,
       pagination: {
         total,
         page,
@@ -179,11 +234,15 @@ exports.getAllBookings = async (req, res) => {
 
 exports.getAdminAnalytics = async (req, res) => {
   try {
-    const [rows] = await db.query('SELECT * FROM bookings WHERE status != "cancelled"');
+    const cancelledStatus = await prisma.bookingStatus.findUnique({ where: { name: 'cancelled' } });
     
-    const totalRevenue = rows.reduce((sum, b) => sum + (Number(b.total_price) || 0), 0);
-    const monthlyRevenue = totalRevenue * 0.3; // Rough approximation for mock
-    const activeBookings = rows.length;
+    const bookings = await prisma.booking.findMany({
+      where: cancelledStatus ? { status_id: { not: cancelledStatus.id } } : {}
+    });
+    
+    const totalRevenue = bookings.reduce((sum, b) => sum + b.total_price, 0);
+    const monthlyRevenue = totalRevenue * 0.3; // Rough approximation
+    const activeBookings = bookings.length;
     
     res.json({
       totalRevenue,
@@ -204,4 +263,3 @@ exports.getAdminAnalytics = async (req, res) => {
     res.status(500).json({ error: 'Failed to generate analytics' });
   }
 };
-
