@@ -5,10 +5,9 @@ services:
     image: mysql:8.0
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: event_management
+      MYSQL_ROOT_PASSWORD: "cringe[]"
     ports:
-      - "3306:3306"
+      - "3307:3306"
     volumes:
       - mysql_data:/var/lib/mysql
       - ./backend/migrations:/docker-entrypoint-initdb.d
@@ -50,8 +49,8 @@ services:
       - AUTH_SERVICE_PORT=5001
       - DB_HOST=mysql
       - DB_USER=root
-      - DB_PASSWORD=root
-      - DB_NAME=event_management
+      - DB_PASSWORD="cringe[]"
+      - DB_NAME=eventpulse_users
       - JWT_SECRET=${JWT_SECRET:-your-secret-key}
       - NOTIFICATION_SERVICE_URL=http://notification-service:5005
     depends_on:
@@ -69,8 +68,8 @@ services:
       - THEME_SERVICE_PORT=5002
       - DB_HOST=mysql
       - DB_USER=root
-      - DB_PASSWORD=root
-      - DB_NAME=event_management
+      - DB_PASSWORD="cringe[]"
+      - DB_NAME=eventpulse_themes
     depends_on:
       mysql:
         condition: service_healthy
@@ -86,8 +85,8 @@ services:
       - BOOKING_SERVICE_PORT=5003
       - DB_HOST=mysql
       - DB_USER=root
-      - DB_PASSWORD=root
-      - DB_NAME=event_management
+      - DB_PASSWORD="cringe[]"
+      - DB_NAME=eventpulse_bookings
       - NOTIFICATION_SERVICE_URL=http://notification-service:5005
     depends_on:
       mysql:
@@ -104,8 +103,8 @@ services:
       - PAYMENT_SERVICE_PORT=5004
       - DB_HOST=mysql
       - DB_USER=root
-      - DB_PASSWORD=root
-      - DB_NAME=event_management
+      - DB_PASSWORD="cringe[]"
+      - DB_NAME=eventpulse_payments
       - RAZORPAY_KEY_ID=${RAZORPAY_KEY_ID}
       - RAZORPAY_KEY_SECRET=${RAZORPAY_KEY_SECRET}
       - NOTIFICATION_SERVICE_URL=http://notification-service:5005

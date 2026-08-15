@@ -1,6 +1,6 @@
 generator client {
   provider      = "prisma-client-js"
-  binaryTargets = ["native", "windows"]
+  binaryTargets = ["native", "windows", "linux-musl-openssl-3.0.x"]
 }
 
 datasource db {
@@ -8,35 +8,33 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Category {
-  id     String  @id @default(uuid())
-  name   String  @unique
-  themes Theme[]
-
-  @@map("categories")
-}
-
 model Theme {
-  id                  String   @id @default(uuid())
-  name                String
-  category_id         String
-  price               Float
-  basePrice           Float?
-  baseGuestCount      Int?
-  pricePerExtraGuest  Float?
-  venueDiscountAmount Float?
-  description         String?
-  status              String   @default("Active")
-  
-  category            Category @relation(fields: [category_id], references: [id])
+  id          String                 @id @default(uuid())
+  name        String
+  description String?                @db.Text
+  price       Decimal                @db.Decimal(10, 2)
+  createdAt   DateTime               @default(now()) @map("created_at")
+  deletedAt   DateTime?              @map("deleted_at")
+  categories  ThemeCategoryMapping[]
 
   @@map("themes")
 }
 
-model AddOn {
-  id    String @id @default(uuid())
-  name  String
-  price Float
+model ThemeCategory {
+  id          String                 @id @default(uuid())
+  name        String                 @unique
+  description String?                @db.Text
+  themes      ThemeCategoryMapping[]
 
-  @@map("add_ons")
+  @@map("theme_categories")
+}
+
+model ThemeCategoryMapping {
+  themeId    String        @map("theme_id")
+  categoryId String        @map("category_id")
+  theme      Theme         @relation(fields: [themeId], references: [id], onDelete: Cascade)
+  category   ThemeCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@id([themeId, categoryId])
+  @@map("theme_category_mapping")
 }

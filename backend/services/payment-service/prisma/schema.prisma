@@ -1,6 +1,6 @@
 generator client {
   provider      = "prisma-client-js"
-  binaryTargets = ["native", "windows"]
+  binaryTargets = ["native", "windows", "linux-musl-openssl-3.0.x"]
 }
 
 datasource db {
@@ -8,36 +8,19 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model PaymentStatus {
-  id       String    @id @default(uuid())
-  name     String    @unique
-  payments Payment[]
-
-  @@map("payment_statuses")
-}
-
-model PaymentMethod {
-  id       String    @id @default(uuid())
-  name     String    @unique
-  payments Payment[]
-
-  @@map("payment_methods")
-}
-
 model Payment {
-  id                 String   @id @default(uuid())
-  booking_id         String
-  amount             Float
-  status_id          String
-  method_id          String
-  gateway_order_id   String?
-  gateway_payment_id String?
-  gateway_signature  String?
-  created_at         DateTime @default(now())
-  updated_at         DateTime @updatedAt
+  id                String   @id @default(uuid())
+  bookingId         String   @map("booking_id") 
+  amount            Decimal  @db.Decimal(10, 2)
+  paymentDate       DateTime @default(now()) @map("payment_date")
+  paymentMethod     String?  @map("payment_method")
+  status            String   @default("pending") 
+  gatewayOrderId    String?  @map("gateway_order_id")
+  gatewayPaymentId  String?  @map("gateway_payment_id")
+  gatewaySignature  String?  @map("gateway_signature")
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
 
-  status PaymentStatus @relation(fields: [status_id], references: [id])
-  method PaymentMethod @relation(fields: [method_id], references: [id])
-
+  @@index([status])
   @@map("payments")
 }

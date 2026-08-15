@@ -58,7 +58,7 @@ app.use(morgan(':id :remote-addr - :method :url HTTP/:http-version :status :resp
 
 // Generic HTTP Proxy to Downstream Microservices
 const proxyRequest = (targetBaseUrl, req, res) => {
-  const targetUrl = new URL(req.url, targetBaseUrl);
+  const targetUrl = new URL(req.originalUrl, targetBaseUrl);
   const options = {
     hostname: targetUrl.hostname,
     port: targetUrl.port,

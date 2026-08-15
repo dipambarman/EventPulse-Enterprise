@@ -1,6 +1,6 @@
 generator client {
   provider      = "prisma-client-js"
-  binaryTargets = ["native", "windows"]
+  binaryTargets = ["native", "windows", "linux-musl-openssl-3.0.x"]
 }
 
 datasource db {
@@ -8,41 +8,48 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Customer {
-  id    String @id @default(uuid())
-  name  String
-  email String @unique
-  phone String
-
-  bookings Booking[]
-
-  @@map("customers")
-}
-
-model BookingStatus {
-  id    String @id @default(uuid())
-  name  String @unique
-
-  bookings Booking[]
-
-  @@map("booking_statuses")
-}
-
 model Booking {
-  id          String   @id @default(uuid())
-  theme_id    String
-  user_id     String
-  customer_id String
-  status_id   String
-  start_date  DateTime
-  end_date    DateTime
-  total_price Float
-  guest_count Int
-  created_at  DateTime @default(now())
-  updated_at  DateTime @updatedAt
+  id                String          @id @default(uuid())
+  themeId           String          @map("theme_id") 
+  userId            String          @map("user_id") 
+  startDate         DateTime        @map("start_date") @db.Date
+  endDate           DateTime        @map("end_date") @db.Date
+  totalPrice        Decimal         @map("total_price") @db.Decimal(10, 2)
+  guestCount        Int             @default(0) @map("guest_count")
+  customerName      String?         @map("customer_name")
+  customerEmail     String?         @map("customer_email")
+  customerPhone     String?         @map("customer_phone")
+  status            String          @default("pending") 
+  cancellationDetails String?       @map("cancellation_details") @db.Text
+  createdAt         DateTime        @default(now()) @map("created_at")
+  updatedAt         DateTime        @updatedAt @map("updated_at")
+  deletedAt         DateTime?       @map("deleted_at")
+  addOns            BookingAddOn[]
 
-  customer    Customer      @relation(fields: [customer_id], references: [id])
-  status      BookingStatus @relation(fields: [status_id], references: [id])
-
+  @@index([startDate, endDate])
   @@map("bookings")
+}
+
+model AddOn {
+  id          String         @id @default(uuid())
+  name        String
+  description String?        @db.Text
+  price       Decimal        @db.Decimal(10, 2)
+  createdAt   DateTime       @default(now()) @map("created_at")
+  updatedAt   DateTime       @updatedAt @map("updated_at")
+  bookings    BookingAddOn[]
+
+  @@map("add_ons")
+}
+
+model BookingAddOn {
+  bookingId      String  @map("booking_id")
+  addOnId        String  @map("add_on_id")
+  quantity       Int     @default(1)
+  priceAtBooking Decimal @map("price_at_booking") @db.Decimal(10, 2)
+  booking        Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  addOn          AddOn   @relation(fields: [addOnId], references: [id])
+
+  @@id([bookingId, addOnId])
+  @@map("booking_add_ons")
 }
