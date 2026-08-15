@@ -42,7 +42,8 @@ const PaymentForm = ({ bookingDetails, totalAmount, onPaymentSuccess }) => {
         body: JSON.stringify({
           amount: totalAmount,
           currency: 'INR',
-          receipt: `receipt_${Date.now()}`
+          receipt: `receipt_${Date.now()}`,
+          bookingId: bookingDetails.id || bookingDetails.bookingId
         })
       });
 
@@ -73,14 +74,15 @@ const PaymentForm = ({ bookingDetails, totalAmount, onPaymentSuccess }) => {
               body: JSON.stringify({
                 razorpay_order_id: response.razorpay_order_id,
                 razorpay_payment_id: response.razorpay_payment_id,
-                razorpay_signature: response.razorpay_signature
+                razorpay_signature: response.razorpay_signature,
+                booking_id: bookingDetails.id || bookingDetails.bookingId
               })
             });
             const verifyData = await verifyResponse.json();
-            if (verifyResponse.ok && verifyData.success) {
+            if (verifyResponse.ok && verifyData.status === 'success') {
               onPaymentSuccess(response.razorpay_payment_id);
             } else {
-              setErrors({ payment: verifyData.message || 'Payment verification failed.' });
+              setErrors({ payment: verifyData.message || verifyData.error || 'Payment verification failed.' });
             }
           } catch (error) {
             setErrors({ payment: 'Payment verification error. Please try again.' });

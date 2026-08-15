@@ -5,7 +5,7 @@ const authMiddleware = (req, res, next) => {
   const token = authHeader && authHeader.startsWith('Bearer ') ? authHeader.split(' ')[1] : req.cookies?.token;
 
   if (!token) {
-    return res.status(401).json({ error: 'Access token required for payments' });
+    return res.status(401).json({ error: 'Access token required' });
   }
 
   try {
@@ -17,4 +17,24 @@ const authMiddleware = (req, res, next) => {
   }
 };
 
-module.exports = authMiddleware;
+const optionalAuthMiddleware = (req, res, next) => {
+  const authHeader = req.headers.authorization;
+  const token = authHeader && authHeader.startsWith('Bearer ') ? authHeader.split(' ')[1] : req.cookies?.token;
+
+  if (!token) {
+    return next();
+  }
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'fallback_jwt_secret');
+    req.user = decoded;
+  } catch (err) {
+    // Ignore
+  }
+  next();
+};
+
+module.exports = {
+  authMiddleware,
+  optionalAuth: optionalAuthMiddleware
+};

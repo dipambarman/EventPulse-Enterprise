@@ -17,11 +17,11 @@ const Payment = () => {
     const fetchBookingFromSession = async () => {
       try {
         setIsLoading(true);
-        const response = await fetch('/api/bookings/session/booking', {
+        const response = await fetch(`/api/bookings/${bookingId}`, {
           credentials: 'include'
         });
         if (!response.ok) {
-          throw new Error('No booking data found in session');
+          throw new Error('Booking not found');
         }
         const bookingData = await response.json();
         setBooking(bookingData);

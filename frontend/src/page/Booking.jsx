@@ -80,7 +80,7 @@ const Booking = () => {
       const result = await createBooking(bookingPayload);
       setBookingData(result);
       // Navigate to payment page with booking ID only, no state
-      navigate(`/payment/${result.id}`);
+      navigate(`/payment/${result.bookingId}`);
     } catch (err) {
       console.error('Error creating booking:', err);
       setError('Failed to create booking. Please try again.');
