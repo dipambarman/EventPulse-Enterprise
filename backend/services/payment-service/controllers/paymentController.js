@@ -169,34 +169,15 @@ exports.verifyPaymentSignature = async (req, res) => {
       });
     }
 
-    // Notify about booking confirmation (cross-service, best-effort)
-    // When RabbitMQ is added, this will be replaced with a message publish
+    // Publish payment.verified event — consumed by both booking-service and notification-service
     if (booking_id) {
-      try {
-        const BOOKING_SERVICE_URL = process.env.BOOKING_SERVICE_URL || 'http://localhost:5003';
-        fetch(`${BOOKING_SERVICE_URL}/api/bookings/${booking_id}`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ status: 'confirmed' })
-        }).catch(e => console.warn('[Payment Service] Could not update booking status:', e.message));
-
-        // Notify notification service
-        const NOTIFICATION_SERVICE_URL = process.env.NOTIFICATION_SERVICE_URL || 'http://localhost:5005';
-        fetch(`${NOTIFICATION_SERVICE_URL}/api/notifications/email`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            type: 'payment_receipt',
-            recipientEmail: 'guest@example.com',
-            customerName: 'Guest User',
-            bookingId: booking_id,
-            amount: existingPayment?.amount || 0,
-            paymentMethod: 'Razorpay'
-          })
-        }).catch(e => console.warn('[Payment Service] Failed to notify notification-service:', e.message));
-      } catch (bookingErr) {
-        console.warn('[Payment Service] Could not update booking status:', bookingErr.message);
-      }
+      const { publishEvent } = require('../shared/rabbitmq');
+      publishEvent('payment.verified', {
+        bookingId: booking_id,
+        amount: existingPayment?.amount || 0,
+        paymentMethod: 'Razorpay',
+        razorpayPaymentId: razorpay_payment_id
+      });
     }
 
     res.json({

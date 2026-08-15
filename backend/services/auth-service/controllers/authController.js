@@ -134,21 +134,13 @@ exports.forgotPassword = async (req, res) => {
       }
     });
 
-    try {
-      await fetch(`${NOTIFICATION_SERVICE_URL}/api/notifications/email`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          type: 'password_reset',
-          recipientEmail: user.email,
-          customerName: user.username,
-          resetToken: rawToken
-        })
-      });
-      console.log(`[Auth Service] Password reset email dispatched for ${user.email}`);
-    } catch (emailErr) {
-      console.warn('[Auth Service] Notification service unreachable, email not sent:', emailErr.message);
-    }
+    const { publishEvent } = require('../shared/rabbitmq');
+    publishEvent('password.reset_requested', {
+      recipientEmail: user.email,
+      customerName: user.username,
+      resetToken: rawToken
+    });
+    console.log(`[Auth Service] Password reset event published for ${user.email}`);
 
     const response = { ...genericResponse };
     if (process.env.NODE_ENV !== 'production') {

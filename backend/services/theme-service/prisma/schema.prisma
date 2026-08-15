@@ -9,32 +9,39 @@ datasource db {
 }
 
 model Theme {
-  id          String                 @id @default(uuid())
-  name        String
-  description String?                @db.Text
-  price       Decimal                @db.Decimal(10, 2)
-  createdAt   DateTime               @default(now()) @map("created_at")
-  deletedAt   DateTime?              @map("deleted_at")
-  categories  ThemeCategoryMapping[]
+  id                  String    @id @default(uuid())
+  name                String
+  description         String?   @db.Text
+  price               Decimal   @db.Decimal(10, 2)
+  basePrice           Decimal   @default(0) @db.Decimal(10, 2)
+  baseGuestCount      Int       @default(10)
+  pricePerExtraGuest  Decimal   @default(0) @db.Decimal(10, 2)
+  venueDiscountAmount Decimal   @default(0) @db.Decimal(10, 2)
+  status              String    @default("Active")
+  category_id         String
+  category            Category  @relation(fields: [category_id], references: [id])
+  createdAt           DateTime  @default(now()) @map("created_at")
+  deletedAt           DateTime? @map("deleted_at")
 
   @@map("themes")
 }
 
-model ThemeCategory {
-  id          String                 @id @default(uuid())
-  name        String                 @unique
-  description String?                @db.Text
-  themes      ThemeCategoryMapping[]
+model Category {
+  id          String  @id @default(uuid())
+  name        String  @unique
+  description String? @db.Text
+  themes      Theme[]
 
-  @@map("theme_categories")
+  @@map("categories")
 }
 
-model ThemeCategoryMapping {
-  themeId    String        @map("theme_id")
-  categoryId String        @map("category_id")
-  theme      Theme         @relation(fields: [themeId], references: [id], onDelete: Cascade)
-  category   ThemeCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+model AddOn {
+  id          String   @id @default(uuid())
+  name        String
+  description String?  @db.Text
+  price       Decimal  @db.Decimal(10, 2)
+  category    String?
+  createdAt   DateTime @default(now()) @map("created_at")
 
-  @@id([themeId, categoryId])
-  @@map("theme_category_mapping")
+  @@map("add_ons")
 }

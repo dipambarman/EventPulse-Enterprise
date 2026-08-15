@@ -37,9 +37,7 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background-image: url('/api/placeholder/1920/1080');
-    background-size: cover;
-    background-position: center;
+    background: linear-gradient(135deg, rgba(108, 92, 231, 0.4) 0%, rgba(0, 206, 201, 0.4) 100%);
     opacity: 0.2;
   }
   

@@ -73,23 +73,14 @@ exports.createBooking = async (req, res) => {
     
     await auditService.logAction(userId, 'BOOKING_CREATED', 'bookings', id, { themeId: booking.theme_id, amount: booking.total_price });
 
-    const NOTIFICATION_SERVICE_URL = process.env.NOTIFICATION_SERVICE_URL || 'http://localhost:5005';
-    try {
-      fetch(`${NOTIFICATION_SERVICE_URL}/api/notifications/email`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          type: 'booking_confirmation',
-          recipientEmail: customer.email,
-          customerName: customer.name,
-          bookingId: id,
-          eventDate: start_date.toISOString(),
-          totalPrice: booking.total_price
-        })
-      }).catch(e => console.warn('[Booking Service] Failed to notify notification-service:', e.message));
-    } catch (err) {
-      console.warn('[Booking Service] Failed to initiate notification:', err.message);
-    }
+    const { publishEvent } = require('../shared/rabbitmq');
+    publishEvent('booking.created', {
+      recipientEmail: customer.email,
+      customerName: customer.name,
+      bookingId: id,
+      eventDate: start_date.toISOString(),
+      totalPrice: booking.total_price
+    });
 
     res.status(201).json({
       message: 'Booking created successfully',

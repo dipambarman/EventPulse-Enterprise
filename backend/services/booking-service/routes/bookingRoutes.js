@@ -14,7 +14,7 @@ router.get('/availability', [
 ], bookingController.checkAvailability);
 
 router.post('/', authMiddleware, bookingController.createBooking);
-router.get('/session/booking', authMiddleware, bookingController.getBookingFromSession);
+router.get('/session/booking', bookingController.getBookingFromSession);
 router.get('/user', authMiddleware, bookingController.getUserBookings);
 router.get('/:id', authMiddleware, bookingController.getBookingById);
 router.patch('/:id', authMiddleware, adminOnly, bookingController.updateBooking);

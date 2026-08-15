@@ -17,6 +17,23 @@ services:
       timeout: 5s
       retries: 5
 
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    restart: always
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "check_port_connectivity"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+
   api-gateway:
     build:
       context: ./backend/services/api-gateway
@@ -40,8 +57,8 @@ services:
 
   auth-service:
     build:
-      context: ./backend/services/auth-service
-      dockerfile: Dockerfile
+      context: ./backend
+      dockerfile: services/auth-service/Dockerfile
     command: node server.js
     ports:
       - "5001:5001"
@@ -51,16 +68,19 @@ services:
       - DB_USER=root
       - DB_PASSWORD="cringe[]"
       - DB_NAME=eventpulse_users
+      - DATABASE_URL=mysql://root:cringe[]@mysql:3306/eventpulse_users
       - JWT_SECRET=${JWT_SECRET:-your-secret-key}
-      - NOTIFICATION_SERVICE_URL=http://notification-service:5005
+      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672
     depends_on:
       mysql:
+        condition: service_healthy
+      rabbitmq:
         condition: service_healthy
 
   theme-service:
     build:
-      context: ./backend/services/theme-service
-      dockerfile: Dockerfile
+      context: ./backend
+      dockerfile: services/theme-service/Dockerfile
     command: node server.js
     ports:
       - "5002:5002"
@@ -70,14 +90,15 @@ services:
       - DB_USER=root
       - DB_PASSWORD="cringe[]"
       - DB_NAME=eventpulse_themes
+      - DATABASE_URL=mysql://root:cringe[]@mysql:3306/eventpulse_themes
     depends_on:
       mysql:
         condition: service_healthy
 
   booking-service:
     build:
-      context: ./backend/services/booking-service
-      dockerfile: Dockerfile
+      context: ./backend
+      dockerfile: services/booking-service/Dockerfile
     command: node server.js
     ports:
       - "5003:5003"
@@ -87,15 +108,18 @@ services:
       - DB_USER=root
       - DB_PASSWORD="cringe[]"
       - DB_NAME=eventpulse_bookings
-      - NOTIFICATION_SERVICE_URL=http://notification-service:5005
+      - DATABASE_URL=mysql://root:cringe[]@mysql:3306/eventpulse_bookings
+      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672
     depends_on:
       mysql:
+        condition: service_healthy
+      rabbitmq:
         condition: service_healthy
 
   payment-service:
     build:
-      context: ./backend/services/payment-service
-      dockerfile: Dockerfile
+      context: ./backend
+      dockerfile: services/payment-service/Dockerfile
     command: node server.js
     ports:
       - "5004:5004"
@@ -105,17 +129,20 @@ services:
       - DB_USER=root
       - DB_PASSWORD="cringe[]"
       - DB_NAME=eventpulse_payments
+      - DATABASE_URL=mysql://root:cringe[]@mysql:3306/eventpulse_payments
       - RAZORPAY_KEY_ID=${RAZORPAY_KEY_ID}
       - RAZORPAY_KEY_SECRET=${RAZORPAY_KEY_SECRET}
-      - NOTIFICATION_SERVICE_URL=http://notification-service:5005
+      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672
     depends_on:
       mysql:
+        condition: service_healthy
+      rabbitmq:
         condition: service_healthy
 
   notification-service:
     build:
-      context: ./backend/services/notification-service
-      dockerfile: Dockerfile
+      context: ./backend
+      dockerfile: services/notification-service/Dockerfile
     command: node server.js
     ports:
       - "5005:5005"
@@ -127,6 +154,11 @@ services:
       - SMTP_PASS=${SMTP_PASS}
       - VAPID_PUBLIC_KEY=${VAPID_PUBLIC_KEY}
       - VAPID_PRIVATE_KEY=${VAPID_PRIVATE_KEY}
+      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
 
 volumes:
   mysql_data:
+  rabbitmq_data:

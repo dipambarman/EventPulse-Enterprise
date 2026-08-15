@@ -1,8 +1,9 @@
 FROM node:18-alpine
 WORKDIR /app
-COPY package*.json ./
-COPY prisma ./prisma/
+COPY services/payment-service/package*.json ./
+COPY services/payment-service/prisma ./prisma/
 RUN npm install && npx prisma generate && npm prune --production
-COPY . .
+COPY shared ./shared/
+COPY services/payment-service/ .
 EXPOSE 5004
 CMD ["npm", "start"]

@@ -158,7 +158,7 @@ const Contact = () => {
       {/* Map Section */}
       <div className="map-section">
         <div className="map-placeholder">
-          <img src="/api/placeholder/1200/400" alt="Map location" />
+          <div style={{ width: '100%', height: '400px', background: 'linear-gradient(135deg, #e0eafc, #cfdef3)' }}></div>
           <div className="map-overlay">
             <div className="map-info">
               <h3>Visit Our Office</h3>

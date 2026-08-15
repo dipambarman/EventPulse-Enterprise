@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "@prisma/client": "^6.19.3",
+    "amqplib": "^2.0.1",
     "bcryptjs": "^3.0.2",
     "body-parser": "^1.20.2",
     "cookie-parser": "^1.4.7",
