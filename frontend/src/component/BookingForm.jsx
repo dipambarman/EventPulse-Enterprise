@@ -25,7 +25,7 @@ const BookingForm = ({ theme, availableDates, onCreateBooking, error }) => {
     guestCount: 1,
     venueType: 'provided',
     customVenueAddress: '',
-    totalPrice: theme ? theme.basePrice : 0,
+    totalPrice: theme ? Number(theme.basePrice) || 0 : 0,
     firstName: '',
     lastName: '',
     email: '',
@@ -69,7 +69,7 @@ const BookingForm = ({ theme, availableDates, onCreateBooking, error }) => {
     if (!theme) return;
 
     const venueType = formData.venueType;
-    let price = theme.basePrice;
+    let price = Number(theme.basePrice) || 0;
 
     const travelThemes = ['meghalaya', 'arunachal', 'sikkim', 'manali', 'delhi', 'jammu and kashmir'];
     const themeName = theme.name.toLowerCase();
@@ -96,7 +96,7 @@ const BookingForm = ({ theme, availableDates, onCreateBooking, error }) => {
     }
 
     if (venueType === 'customer') {
-      price -= theme.venueDiscountAmount || 0;
+      price -= Number(theme.venueDiscountAmount) || 0;
     }
 
     if (excludedThemes.some(e => themeName.includes(e))) {

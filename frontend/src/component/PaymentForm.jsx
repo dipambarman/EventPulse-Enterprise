@@ -22,13 +22,6 @@ const PaymentForm = ({ bookingDetails, totalAmount, onPaymentSuccess }) => {
   };
 
   const handleRazorpayPayment = async () => {
-    const res = await loadRazorpayScript();
-
-    if (!res) {
-      setErrors({ payment: 'Failed to load Razorpay SDK. Please try again later.' });
-      return;
-    }
-
     setIsProcessing(true);
 
     try {
@@ -55,15 +48,34 @@ const PaymentForm = ({ bookingDetails, totalAmount, onPaymentSuccess }) => {
         return;
       }
 
+      // Check if this is a mock order (no real Razorpay credentials on backend)
+      // Mock order IDs are like "order_f2c158f4", real ones are like "order_PLs2EKOm8igR8Y"
+      const razorpayKeyId = import.meta.env.VITE_RAZORPAY_KEY_ID;
+      const isMockOrder = !razorpayKeyId || !orderData.id?.startsWith('order_');
+
+      if (!razorpayKeyId) {
+        // No Razorpay key configured — simulate successful payment
+        console.log('[PaymentForm] Mock mode: simulating successful payment');
+        onPaymentSuccess(`mock_pay_${Date.now()}`);
+        return;
+      }
+
+      // Real Razorpay flow
+      const scriptLoaded = await loadRazorpayScript();
+      if (!scriptLoaded) {
+        setErrors({ payment: 'Failed to load Razorpay SDK. Please try again later.' });
+        setIsProcessing(false);
+        return;
+      }
+
       const options = {
-        key: import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_test_ORMoqQwaGSJZXh', // Use Vite env variable for Razorpay key
+        key: razorpayKeyId,
         amount: orderData.amount,
         currency: orderData.currency,
         name: 'Event Booking',
         description: 'Payment for booking',
         order_id: orderData.id,
-      handler: async function (response) {
-          // On successful payment, verify payment signature with backend
+        handler: async function (response) {
           try {
             const verifyResponse = await fetch('/api/payments/razorpay/verify', {
               method: 'POST',
@@ -101,52 +113,6 @@ const PaymentForm = ({ bookingDetails, totalAmount, onPaymentSuccess }) => {
 
       const rzp = new window.Razorpay(options);
       rzp.open();
-
-      // Patch to fix SVG width/height="auto" issue injected by Razorpay script
-      rzp.on('ready', () => {
-        // One-time fix
-        setTimeout(() => {
-          const svgs = document.querySelectorAll('svg[width="auto"], svg[height="auto"]');
-          svgs.forEach(svg => {
-            if (svg.getAttribute('width') === 'auto') {
-              svg.removeAttribute('width');
-            }
-            if (svg.getAttribute('height') === 'auto') {
-              svg.removeAttribute('height');
-            }
-          });
-        }, 2000); // Increased delay to allow Razorpay DOM to render fully
-
-        // MutationObserver to continuously fix SVG attributes dynamically
-        const observer = new MutationObserver(mutations => {
-          mutations.forEach(mutation => {
-            mutation.addedNodes.forEach(node => {
-              if (node.nodeType === 1) { // Element node
-                if (node.tagName === 'svg') {
-                  if (node.getAttribute('width') === 'auto') {
-                    node.removeAttribute('width');
-                  }
-                  if (node.getAttribute('height') === 'auto') {
-                    node.removeAttribute('height');
-                  }
-                }
-                // Also check descendants
-                const svgs = node.querySelectorAll && node.querySelectorAll('svg[width="auto"], svg[height="auto"]');
-                svgs && svgs.forEach(svg => {
-                  if (svg.getAttribute('width') === 'auto') {
-                    svg.removeAttribute('width');
-                  }
-                  if (svg.getAttribute('height') === 'auto') {
-                    svg.removeAttribute('height');
-                  }
-                });
-              }
-            });
-          });
-        });
-
-        observer.observe(document.body, { childList: true, subtree: true });
-      });
 
     } catch (error) {
       setErrors({ payment: 'Payment failed. Please try again later.' });

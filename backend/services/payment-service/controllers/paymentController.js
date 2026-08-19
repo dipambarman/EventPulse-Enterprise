@@ -21,24 +21,6 @@ if (RAZORPAY_KEY_ID && RAZORPAY_KEY_SECRET) {
   }
 }
 
-// Helper: find or create a PaymentStatus by name
-async function getOrCreateStatus(name) {
-  let status = await prisma.paymentStatus.findUnique({ where: { name } });
-  if (!status) {
-    status = await prisma.paymentStatus.create({ data: { name } });
-  }
-  return status;
-}
-
-// Helper: find or create a PaymentMethod by name
-async function getOrCreateMethod(name) {
-  let method = await prisma.paymentMethod.findUnique({ where: { name } });
-  if (!method) {
-    method = await prisma.paymentMethod.create({ data: { name } });
-  }
-  return method;
-}
-
 exports.createPaymentIntent = (req, res) => {
   const bookingDetails = req.body;
   res.status(201).json({
@@ -82,16 +64,13 @@ exports.createOrder = async (req, res) => {
 
     // Save pending payment record in DB
     if (bookingId) {
-      const pendingStatus = await getOrCreateStatus('pending');
-      const razorpayMethod = await getOrCreateMethod('razorpay');
-
       await prisma.payment.create({
         data: {
-          booking_id: bookingId,
+          bookingId: bookingId,
           amount: Number(amount),
-          status_id: pendingStatus.id,
-          method_id: razorpayMethod.id,
-          gateway_order_id: order.id
+          status: 'pending',
+          paymentMethod: 'razorpay',
+          gatewayOrderId: order.id
         }
       });
     }
@@ -151,20 +130,18 @@ exports.verifyPaymentSignature = async (req, res) => {
     // Step 4: Signature is valid — update payment record
     console.log(`[Payment Service] ✅ Signature verified for order ${razorpay_order_id}`);
 
-    const completedStatus = await getOrCreateStatus('completed');
-
     // Find the payment by gateway_order_id and update it
     const existingPayment = await prisma.payment.findFirst({
-      where: { gateway_order_id: razorpay_order_id }
+      where: { gatewayOrderId: razorpay_order_id }
     });
 
     if (existingPayment) {
       await prisma.payment.update({
         where: { id: existingPayment.id },
         data: {
-          status_id: completedStatus.id,
-          gateway_payment_id: razorpay_payment_id,
-          gateway_signature: razorpay_signature
+          status: 'completed',
+          gatewayPaymentId: razorpay_payment_id,
+          gatewaySignature: razorpay_signature
         }
       });
     }
@@ -206,18 +183,10 @@ exports.confirmPayment = async (req, res) => {
 };
 
 exports.getPaymentMethods = async (req, res) => {
-  try {
-    const methods = await prisma.paymentMethod.findMany();
-    res.json(methods.length > 0 ? methods : [
-      { id: 'pm_card_1', name: 'Visa' },
-      { id: 'pm_upi_1', name: 'UPI' }
-    ]);
-  } catch (error) {
-    res.json([
-      { id: 'pm_card_1', name: 'Visa' },
-      { id: 'pm_upi_1', name: 'UPI' }
-    ]);
-  }
+  res.json([
+    { id: 'pm_card_1', name: 'Visa' },
+    { id: 'pm_upi_1', name: 'UPI' }
+  ]);
 };
 
 exports.addPaymentMethod = async (req, res) => {
@@ -235,19 +204,21 @@ exports.getPaymentHistory = async (req, res) => {
     const offset = (page - 1) * limit;
 
     const payments = await prisma.payment.findMany({
-      orderBy: { created_at: 'desc' },
+      orderBy: { createdAt: 'desc' },
       skip: offset,
-      take: limit,
-      include: { status: true, method: true }
+      take: limit
     });
 
     const total = await prisma.payment.count();
 
-    // Flatten for backward compat
     const mappedPayments = payments.map(p => ({
-      ...p,
-      status: p.status.name,
-      payment_method: p.method.name
+      id: p.id,
+      booking_id: p.bookingId,
+      amount: p.amount,
+      status: p.status,
+      payment_method: p.paymentMethod,
+      payment_date: p.paymentDate,
+      created_at: p.createdAt
     }));
 
     res.json({
@@ -275,16 +246,18 @@ exports.handleWebhook = async (req, res) => {
 exports.getPaymentDetails = async (req, res) => {
   try {
     const payment = await prisma.payment.findUnique({
-      where: { id: req.params.paymentId },
-      include: { status: true, method: true }
+      where: { id: req.params.paymentId }
     });
     if (!payment) {
       return res.json({ id: req.params.paymentId, status: 'captured', amount: 15000 });
     }
     res.json({
-      ...payment,
-      status: payment.status.name,
-      payment_method: payment.method.name
+      id: payment.id,
+      booking_id: payment.bookingId,
+      amount: payment.amount,
+      status: payment.status,
+      payment_method: payment.paymentMethod,
+      payment_date: payment.paymentDate
     });
   } catch (error) {
     res.json({ id: req.params.paymentId, status: 'captured', amount: 15000 });
