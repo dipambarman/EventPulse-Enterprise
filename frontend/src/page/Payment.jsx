@@ -3,6 +3,7 @@ import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { getBookingById } from '../services/bookingService';
 import PaymentForm from '../component/PaymentForm';
 import '../styles/components.css';
+import '../styles/paymentForm.css';
 
 const Payment = () => {
   const { bookingId } = useParams();

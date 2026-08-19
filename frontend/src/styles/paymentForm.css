@@ -1,37 +1,125 @@
-/* Styles for PaymentForm component */
-.payment-form {
-  max-width: 600px;
-  margin: 0 auto;
-  padding: 1rem;
-  background-color: #ffffff;
-  border-radius: 8px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+/* Styles for Payment Page and PaymentForm component */
+.payment-page-container {
+  min-height: calc(100vh - 80px);
+  padding: var(--ep-space-12) var(--ep-space-6);
+  background-color: var(--ep-gray-50);
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
 }
 
-.payment-form label {
-  display: block;
-  margin-bottom: 0.5rem;
-  font-weight: 600;
-}
-
-.payment-form input,
-.payment-form select {
+.payment-form-container {
+  max-width: 500px;
   width: 100%;
-  padding: 0.5rem;
-  margin-bottom: 1rem;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+  margin: 0 auto;
+  padding: var(--ep-space-8);
+  background-color: var(--ep-bg-primary);
+  border-radius: var(--ep-radius-2xl);
+  box-shadow: var(--ep-shadow-xl);
+  border: 1px solid var(--ep-gray-200);
 }
 
-.payment-form button {
-  background-color: #2563eb;
-  color: white;
-  padding: 0.75rem 1.5rem;
-  border: none;
-  border-radius: 4px;
+.payment-form-container h2 {
+  font-family: var(--ep-font-display);
+  font-size: var(--ep-text-2xl);
+  color: var(--ep-gray-900);
+  margin-bottom: var(--ep-space-4);
+  text-align: center;
+}
+
+.payment-amount {
+  font-size: var(--ep-text-lg);
+  font-weight: 600;
+  color: var(--ep-primary-700);
+  text-align: center;
+  margin-bottom: var(--ep-space-6);
+  padding: var(--ep-space-4);
+  background-color: var(--ep-primary-50);
+  border-radius: var(--ep-radius-lg);
+  border: 1px solid var(--ep-primary-100);
+}
+
+.payment-actions {
+  display: flex;
+  gap: var(--ep-space-4);
+  margin-top: var(--ep-space-6);
+}
+
+.payment-actions .btn {
+  flex: 1;
+  padding: var(--ep-space-3) var(--ep-space-6);
+  border-radius: var(--ep-radius-lg);
+  font-weight: 600;
+  font-size: var(--ep-text-sm);
+  text-align: center;
   cursor: pointer;
+  transition: all var(--ep-transition-base);
+  border: none;
 }
 
-.payment-form button:hover {
-  background-color: #1e40af;
+.payment-actions .btn-primary {
+  background-color: var(--ep-primary);
+  color: white;
+  box-shadow: 0 4px 6px -1px rgba(94, 114, 228, 0.2);
+}
+
+.payment-actions .btn-primary:hover:not(:disabled) {
+  background-color: var(--ep-primary-600);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 8px -1px rgba(94, 114, 228, 0.3);
+}
+
+.payment-actions .btn-secondary {
+  background-color: var(--ep-gray-200);
+  color: var(--ep-gray-700);
+}
+
+.payment-actions .btn-secondary:hover:not(:disabled) {
+  background-color: var(--ep-gray-300);
+}
+
+.payment-actions .btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.payment-security-info {
+  margin-top: var(--ep-space-8);
+  padding-top: var(--ep-space-6);
+  border-top: 1px solid var(--ep-gray-200);
+  text-align: center;
+  color: var(--ep-gray-500);
+  font-size: var(--ep-text-xs);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: var(--ep-space-2);
+}
+
+.payment-security-info p {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+}
+
+.lock-icon {
+  display: inline-block;
+  width: 12px;
+  height: 14px;
+  border: 2px solid currentColor;
+  border-radius: 4px 4px 2px 2px;
+  position: relative;
+}
+
+.lock-icon::before {
+  content: '';
+  position: absolute;
+  top: -6px;
+  left: 2px;
+  width: 4px;
+  height: 6px;
+  border: 2px solid currentColor;
+  border-bottom: 0;
+  border-radius: 4px 4px 0 0;
 }

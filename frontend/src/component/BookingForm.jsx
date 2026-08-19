@@ -100,7 +100,7 @@ const BookingForm = ({ theme, availableDates, onCreateBooking, error }) => {
     }
 
     if (excludedThemes.some(e => themeName.includes(e))) {
-      const guestCount = formData.guestCount;
+      const guestCount = Number(formData.guestCount) || 1;
       let minGuestCount = 0;
       let extraChargePerGuest = 0;
       if (themeName.includes('birthday')) {
@@ -119,8 +119,11 @@ const BookingForm = ({ theme, availableDates, onCreateBooking, error }) => {
       }
     } else {
       // For travel themes, guestCount fixed to 1 and no extra guest charges
-      if (formData.guestCount !== 1) {
-        setFormData(prev => ({ ...prev, guestCount: 1 }));
+      const travelThemes = ['meghalaya', 'arunachal', 'sikkim', 'manali', 'delhi', 'jammu and kashmir', 'travel'];
+      if (travelThemes.some(t => themeName.includes(t))) {
+        if (formData.guestCount !== 1) {
+          setFormData(prev => ({ ...prev, guestCount: 1 }));
+        }
       }
     }
 
@@ -133,7 +136,7 @@ const BookingForm = ({ theme, availableDates, onCreateBooking, error }) => {
     const { name, value, type, checked } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value
+      [name]: type === 'checkbox' ? checked : (type === 'number' ? (value === '' ? '' : Number(value)) : value)
     }));
   };
 
@@ -190,7 +193,7 @@ const BookingForm = ({ theme, availableDates, onCreateBooking, error }) => {
           value={formData.selectedDate}
           onChange={handleChange}
           required
-          min={availableDates.length > 0 ? availableDates[0] : undefined}
+          min={new Date().toISOString().split('T')[0]}
           max={availableDates.length > 0 ? availableDates[availableDates.length - 1] : undefined}
         />
         <small>Please select a date within the available range.</small>
@@ -218,32 +221,23 @@ const BookingForm = ({ theme, availableDates, onCreateBooking, error }) => {
 
       <label>
         Number of Guests:
-      <input
+        <input
           type="number"
           name="guestCount"
           min={1}
-          value={formData.guestCount === null ? '' : (isNaN(formData.guestCount) ? '' : formData.guestCount)}
-          onChange={(e) => {
-            const inputValue = e.target.value;
-            let value = null;
-            if (inputValue === '') {
-              value = null;
-            } else {
-              const parsed = parseInt(inputValue, 10);
-              value = isNaN(parsed) ? 1 : parsed;
-            }
-            setFormData(prev => ({ ...prev, guestCount: value }));
-          }}
+          value={formData.guestCount}
+          onChange={handleChange}
           onBlur={(e) => {
-            if (e.target.value === '') {
-              alert('Please enter the number of guests.');
+            if (e.target.value === '' || e.target.value === '0') {
+              alert('Please enter the number of guests (minimum 1).');
+              setFormData(prev => ({ ...prev, guestCount: 1 }));
             }
           }}
           required
           disabled={(() => {
-            const travelThemes = ['meghalaya', 'arunachal', 'sikkim', 'manali', 'delhi', 'jammu and kashmir'];
+            const travelThemes = ['meghalaya', 'arunachal', 'sikkim', 'manali', 'delhi', 'jammu and kashmir', 'travel'];
             const themeName = theme.name.toLowerCase();
-            return travelThemes.some(t => themeName.includes(t)) && !excludedThemes.some(e => themeName.includes(e));
+            return travelThemes.some(t => themeName.includes(t));
           })()}
         />
       </label>
