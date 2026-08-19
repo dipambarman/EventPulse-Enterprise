@@ -57,7 +57,7 @@ const Payment = () => {
     <div className="payment-page-container">
       <PaymentForm
         bookingDetails={booking}
-        totalAmount={booking.totalPrice}
+        totalAmount={Number(booking.totalPrice) || 0}
         onPaymentSuccess={handlePaymentSuccess}
       />
     </div>

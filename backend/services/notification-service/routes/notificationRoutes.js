@@ -9,6 +9,19 @@ const validateRequest = (req, res, next) => {
   next();
 };
 
+// POST /api/notifications/test - Test Ethereal Email Setup
+router.post('/test', async (req, res) => {
+  const emailService = require('../services/emailService');
+  const result = await emailService.sendBookingConfirmationEmail({
+    recipientEmail: 'test_user@example.com',
+    customerName: 'Ethereal Tester',
+    bookingId: 'EVT-TEST-123',
+    eventDate: new Date().toISOString(),
+    totalPrice: 9999
+  });
+  res.json({ success: true, message: 'Test email dispatched', previewUrl: result.previewUrl || result.message });
+});
+
 // POST /api/notifications/email - Dispatch transactional email
 router.post('/email', [
   body('type').notEmpty().withMessage('Type is required'),

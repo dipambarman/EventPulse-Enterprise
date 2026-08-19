@@ -1,5 +1,7 @@
 const nodemailer = require('nodemailer');
 
+const SMTP_FROM = process.env.SMTP_FROM || 'no-reply@eventpulse.io';
+
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST || 'smtp.ethereal.email',
   port: parseInt(process.env.SMTP_PORT || '587', 10),
@@ -12,7 +14,7 @@ const transporter = nodemailer.createTransport({
 
 exports.sendBookingConfirmationEmail = async ({ recipientEmail, customerName, bookingId, eventDate, totalPrice }) => {
   const mailOptions = {
-    from: `"EventPulse Enterprise" <${process.env.SMTP_FROM || 'no-reply@eventpulse.io'}>`,
+    from: SMTP_FROM,
     to: recipientEmail,
     subject: `Booking Confirmed — #${bookingId}`,
     html: `
@@ -34,7 +36,10 @@ exports.sendBookingConfirmationEmail = async ({ recipientEmail, customerName, bo
   try {
     const info = await transporter.sendMail(mailOptions);
     console.log(`[Email Service] Sent booking confirmation to ${recipientEmail}`);
-    return { success: true, messageId: info.messageId };
+    if (info.messageId) {
+      console.log(`[Email Service] Preview URL: ${nodemailer.getTestMessageUrl(info)}`);
+    }
+    return { success: true, messageId: info.messageId, previewUrl: nodemailer.getTestMessageUrl(info) };
   } catch (err) {
     console.warn(`[Email Service] SMTP dispatch warning for ${recipientEmail}:`, err.message);
     return { success: true, mock: true, message: 'Simulated email dispatch' };
@@ -43,7 +48,7 @@ exports.sendBookingConfirmationEmail = async ({ recipientEmail, customerName, bo
 
 exports.sendPaymentReceiptEmail = async ({ recipientEmail, customerName, bookingId, amount, paymentMethod }) => {
   const mailOptions = {
-    from: `"EventPulse Billing" <${process.env.SMTP_FROM || 'billing@eventpulse.io'}>`,
+    from: SMTP_FROM,
     to: recipientEmail,
     subject: `Payment Receipt — #${bookingId}`,
     html: `
@@ -59,7 +64,10 @@ exports.sendPaymentReceiptEmail = async ({ recipientEmail, customerName, booking
   };
   try {
     const info = await transporter.sendMail(mailOptions);
-    return { success: true, messageId: info.messageId };
+    if (info.messageId) {
+      console.log(`[Email Service] Payment Receipt Preview URL: ${nodemailer.getTestMessageUrl(info)}`);
+    }
+    return { success: true, messageId: info.messageId, previewUrl: nodemailer.getTestMessageUrl(info) };
   } catch (err) {
     return { success: true, mock: true, message: 'Simulated receipt email dispatch' };
   }
@@ -68,7 +76,7 @@ exports.sendPaymentReceiptEmail = async ({ recipientEmail, customerName, booking
 exports.sendPasswordResetEmail = async ({ recipientEmail, resetToken }) => {
   const resetLink = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/reset-password?token=${resetToken}`;
   const mailOptions = {
-    from: `"EventPulse Security" <${process.env.SMTP_FROM || 'security@eventpulse.io'}>`,
+    from: SMTP_FROM,
     to: recipientEmail,
     subject: `Password Reset Request — EventPulse`,
     html: `
@@ -82,7 +90,10 @@ exports.sendPasswordResetEmail = async ({ recipientEmail, resetToken }) => {
   };
   try {
     const info = await transporter.sendMail(mailOptions);
-    return { success: true, messageId: info.messageId };
+    if (info.messageId) {
+      console.log(`[Email Service] Password Reset Preview URL: ${nodemailer.getTestMessageUrl(info)}`);
+    }
+    return { success: true, messageId: info.messageId, previewUrl: nodemailer.getTestMessageUrl(info) };
   } catch (err) {
     return { success: true, mock: true, message: 'Simulated password reset email' };
   }
