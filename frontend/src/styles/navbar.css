@@ -196,6 +196,7 @@
   font-size: var(--ep-text-sm);
   cursor: pointer;
   transition: all var(--ep-transition-base);
+  text-decoration: none;
 }
 
 .ep-user-avatar:hover {

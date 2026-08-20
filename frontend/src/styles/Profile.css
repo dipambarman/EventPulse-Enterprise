@@ -1,0 +1,459 @@
+/* ============================================
+   EventPulse — Profile Page Styles
+   ============================================ */
+
+/* Header */
+.ep-profile-page {
+  min-height: 100vh;
+  background: var(--ep-bg-secondary);
+  padding-bottom: var(--ep-space-16);
+}
+
+.ep-profile-header {
+  position: relative;
+  background: linear-gradient(135deg, var(--ep-bg-dark) 0%, var(--ep-primary-900) 50%, #1a0a3e 100%);
+  padding: var(--ep-space-14) 0 var(--ep-space-12);
+  overflow: hidden;
+}
+
+.ep-profile-header-bg {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.ep-profile-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.25;
+}
+
+.ep-profile-orb-1 {
+  width: 300px;
+  height: 300px;
+  background: var(--ep-primary);
+  top: -100px;
+  right: 10%;
+}
+
+.ep-profile-orb-2 {
+  width: 200px;
+  height: 200px;
+  background: var(--ep-accent);
+  bottom: -60px;
+  left: 5%;
+}
+
+.ep-profile-header-content {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: var(--ep-space-6);
+  flex-wrap: wrap;
+}
+
+.ep-profile-avatar-large {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--ep-primary), var(--ep-accent));
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--ep-font-display);
+  font-size: var(--ep-text-3xl);
+  font-weight: 800;
+  box-shadow: 0 0 30px rgba(108, 60, 225, 0.4);
+  flex-shrink: 0;
+  border: 3px solid rgba(255, 255, 255, 0.15);
+}
+
+.ep-profile-info {
+  flex: 1;
+  min-width: 200px;
+}
+
+.ep-profile-name {
+  font-family: var(--ep-font-display);
+  font-size: var(--ep-text-3xl);
+  font-weight: 800;
+  color: #ffffff;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.ep-profile-email {
+  font-size: var(--ep-text-sm);
+  color: rgba(255, 255, 255, 0.55);
+  margin-top: var(--ep-space-1);
+}
+
+.ep-profile-meta {
+  display: flex;
+  gap: var(--ep-space-5);
+  margin-top: var(--ep-space-3);
+  flex-wrap: wrap;
+}
+
+.ep-profile-meta-item {
+  display: flex;
+  align-items: center;
+  gap: var(--ep-space-2);
+  font-size: var(--ep-text-xs);
+  color: rgba(255, 255, 255, 0.65);
+  font-weight: 500;
+}
+
+.ep-admin-badge-meta {
+  color: var(--ep-accent);
+}
+
+.ep-profile-actions {
+  display: flex;
+  gap: var(--ep-space-3);
+  flex-shrink: 0;
+}
+
+.ep-profile-header-btn {
+  color: rgba(255, 255, 255, 0.85) !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
+  display: flex;
+  align-items: center;
+  gap: var(--ep-space-2);
+  font-size: var(--ep-text-xs) !important;
+}
+
+.ep-profile-header-btn:hover {
+  background: rgba(255, 255, 255, 0.1) !important;
+  border-color: rgba(255, 255, 255, 0.35) !important;
+  color: #fff !important;
+}
+
+.ep-logout-btn {
+  color: var(--ep-error) !important;
+}
+
+.ep-logout-btn:hover {
+  background: rgba(239, 68, 68, 0.15) !important;
+}
+
+/* Body */
+.ep-profile-body {
+  margin-top: calc(-1 * var(--ep-space-8));
+  position: relative;
+  z-index: 10;
+}
+
+/* Tab Switcher */
+.ep-profile-tabs {
+  display: flex;
+  gap: var(--ep-space-3);
+  margin-bottom: var(--ep-space-8);
+}
+
+.ep-profile-tab {
+  display: flex;
+  align-items: center;
+  gap: var(--ep-space-2);
+  padding: var(--ep-space-3) var(--ep-space-6);
+  border-radius: var(--ep-radius-xl);
+  font-size: var(--ep-text-sm);
+  font-weight: 600;
+  background: var(--ep-bg-primary);
+  color: var(--ep-gray-500);
+  border: 1px solid var(--ep-gray-200);
+  cursor: pointer;
+  transition: all var(--ep-transition-base);
+  font-family: inherit;
+}
+
+.ep-profile-tab:hover {
+  color: var(--ep-primary);
+  border-color: var(--ep-primary-200);
+  background: var(--ep-primary-50, #f3f0ff);
+}
+
+.ep-profile-tab.active {
+  background: var(--ep-primary);
+  color: white;
+  border-color: var(--ep-primary);
+  box-shadow: 0 4px 14px rgba(108, 60, 225, 0.35);
+}
+
+.ep-profile-tab.active svg {
+  stroke: white;
+}
+
+/* Loading */
+.ep-profile-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--ep-space-16) 0;
+  gap: var(--ep-space-4);
+  color: var(--ep-gray-500);
+}
+
+/* Empty State */
+.ep-profile-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: var(--ep-space-16) var(--ep-space-8);
+  gap: var(--ep-space-4);
+}
+
+.ep-profile-empty-state h3 {
+  font-family: var(--ep-font-display);
+  font-size: var(--ep-text-xl);
+  font-weight: 700;
+  color: var(--ep-gray-700);
+}
+
+.ep-profile-empty-state p {
+  color: var(--ep-gray-500);
+  font-size: var(--ep-text-sm);
+  max-width: 400px;
+}
+
+/* Bookings Grid */
+.ep-bookings-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+  gap: var(--ep-space-6);
+}
+
+/* Booking Card */
+.ep-booking-card {
+  padding: 0;
+  border-radius: var(--ep-radius-2xl);
+  overflow: hidden;
+  transition: transform var(--ep-transition-base), box-shadow var(--ep-transition-base);
+}
+
+.ep-booking-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px rgba(108, 60, 225, 0.1);
+}
+
+.ep-booking-card-header {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--ep-space-3);
+  padding: var(--ep-space-5) var(--ep-space-5) var(--ep-space-3);
+}
+
+.ep-booking-theme-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--ep-radius-lg);
+  background: var(--ep-primary-100);
+  color: var(--ep-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.ep-booking-header-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.ep-booking-title {
+  font-family: var(--ep-font-display);
+  font-size: var(--ep-text-base);
+  font-weight: 700;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ep-booking-ref {
+  font-size: var(--ep-text-xs);
+  color: var(--ep-gray-400);
+  font-family: monospace;
+}
+
+/* Status Badges */
+.ep-profile-badge {
+  padding: var(--ep-space-1) var(--ep-space-3);
+  border-radius: var(--ep-radius-full);
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.ep-badge-success {
+  background: var(--ep-success-light);
+  color: var(--ep-success);
+}
+
+.ep-badge-warning {
+  background: var(--ep-warning-light);
+  color: var(--ep-warning);
+}
+
+.ep-badge-primary {
+  background: var(--ep-primary-100);
+  color: var(--ep-primary);
+}
+
+.ep-badge-danger {
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--ep-error);
+}
+
+.ep-badge-neutral {
+  background: var(--ep-gray-100);
+  color: var(--ep-gray-500);
+}
+
+/* Card Body */
+.ep-booking-card-body {
+  padding: 0 var(--ep-space-5) var(--ep-space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--ep-space-2);
+}
+
+.ep-booking-detail {
+  display: flex;
+  align-items: center;
+  gap: var(--ep-space-2);
+  font-size: var(--ep-text-sm);
+  color: var(--ep-gray-600);
+}
+
+.ep-booking-detail svg {
+  color: var(--ep-gray-400);
+  flex-shrink: 0;
+}
+
+/* Card Footer */
+.ep-booking-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--ep-space-4) var(--ep-space-5);
+  border-top: 1px solid var(--ep-gray-100);
+  background: var(--ep-bg-secondary);
+}
+
+.ep-booking-price {
+  display: flex;
+  flex-direction: column;
+}
+
+.ep-price-label {
+  font-size: var(--ep-text-xs);
+  color: var(--ep-gray-400);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.ep-price-value {
+  font-family: var(--ep-font-display);
+  font-size: var(--ep-text-lg);
+  font-weight: 800;
+  color: var(--ep-primary);
+}
+
+.ep-btn-xs {
+  padding: var(--ep-space-2) var(--ep-space-4) !important;
+  font-size: var(--ep-text-xs) !important;
+  border-radius: var(--ep-radius-lg) !important;
+}
+
+/* Quick Links */
+.ep-profile-quick-links {
+  margin-top: var(--ep-space-12);
+}
+
+.ep-quick-links-title {
+  font-family: var(--ep-font-display);
+  font-size: var(--ep-text-lg);
+  font-weight: 700;
+  margin-bottom: var(--ep-space-5);
+  color: var(--ep-gray-800);
+}
+
+.ep-quick-links-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: var(--ep-space-4);
+}
+
+.ep-quick-link-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--ep-space-3);
+  padding: var(--ep-space-6) var(--ep-space-4);
+  text-decoration: none;
+  color: var(--ep-gray-700);
+  font-size: var(--ep-text-sm);
+  font-weight: 600;
+  border-radius: var(--ep-radius-xl);
+  transition: transform var(--ep-transition-base), box-shadow var(--ep-transition-base);
+  text-align: center;
+}
+
+.ep-quick-link-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+.ep-quick-link-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--ep-radius-xl);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .ep-profile-header-content {
+    flex-direction: column;
+    text-align: center;
+    align-items: center;
+  }
+
+  .ep-profile-meta {
+    justify-content: center;
+  }
+
+  .ep-profile-actions {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .ep-profile-tabs {
+    width: 100%;
+  }
+
+  .ep-profile-tab {
+    flex: 1;
+    justify-content: center;
+  }
+
+  .ep-bookings-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .ep-quick-links-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

@@ -11,6 +11,7 @@ const Themes = lazy(() => import('./page/Themes'));
 const ThemeDetails = lazy(() => import('./page/ThemeDetails'));
 const EventCalculator = lazy(() => import('./page/EventCalculator'));
 const ClientPortal = lazy(() => import('./page/ClientPortal'));
+const Profile = lazy(() => import('./page/Profile'));
 const AdminDashboard = lazy(() => import('./page/AdminDashboard'));
 const Booking = lazy(() => import('./page/Booking'));
 const Payment = lazy(() => import('./page/Payment'));
@@ -46,6 +47,7 @@ const App = () => {
             <Route path="/themes" element={<Themes />} />
             <Route path="/themes/:id" element={<ThemeDetails />} />
             <Route path="/calculator" element={<EventCalculator />} />
+            <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
             <Route path="/client-portal" element={<ProtectedRoute><ClientPortal /></ProtectedRoute>} />
             <Route path="/admin" element={<ProtectedRoute adminOnly><AdminDashboard /></ProtectedRoute>} />
             <Route path="/booking" element={<ProtectedRoute><Booking /></ProtectedRoute>} />
